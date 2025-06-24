@@ -1,0 +1,37 @@
+
+⸻
+
+3. Monetization Architecture: Keep It Modular
+	1.	Core Persona SaaS (B2B)
+	•	$___ per active student for data vault + API access (schools, districts, edtechs).
+	•	Value prop: shrink admin workload, boost aid yield, improve retention.
+	2.	Marketplace Revenue Share (B2C)
+	•	10–20 % of any aid recovered, internship placed, or book sold.
+	•	Stripe Connect for flow-through payments so you don’t handle scholarship funds directly.
+	3.	Premium Feature Bundles
+	•	Scholarship Scout Pro (unlimited essay polishing, ACT Coach) – $99/yr.
+	•	University Launch Pack (moving checklist, textbook savings, roommate match) – $49 one-time.
+	4.	API Licensing to Vertical Partners
+	•	Offer “Persona-as-a-Service” so third-party XR tour builders, study-abroad firms, or fintech apps can query verified student data with OAuth-like scopes.
+	5.	White-Label Agent SDK
+	•	Sell a toolkit to guidance-counseling software vendors that lets them spin up agents atop your persona schema, paying per 1K API calls.
+
+⸻
+
+4. Decision Filters Before You Spin a New Agent
+	1.	Adjacency – Does it reuse 70 %+ of the pipelines you’ve built (crawl, vector, draft)?
+	2.	Clear Payer – Can you name who writes the check and why within one sentence?
+	3.	Low Trust Barrier – Scholarships & FAFSA require high trust; test-prep or coupon-finding can launch faster.
+	4.	Data Flywheel – Will the new use case feed more context back into the persona, strengthening all agents?
+	5.	Compliance Load – FAFSA or health data adds regulation; internships and textbook deals are lighter.
+
+⸻
+
+Immediate Action Steps
+	1.	Pick two fast-adjacent micro-agents (e.g., EssayPolish + ACT Boost Coach) and prototype as toggle features by re-using your retrieval-generation loop.
+	2.	Draft the Persona Schema v0.2 with fields covering academics, finance, wellness, and preferences—future proof for XR.
+	3.	Define the API contract so external builders (or future you) can pull persona slices with scoped tokens.
+	4.	Pilot a B2B call with one local high school counseling office: show Hawkeye + EssayPolish upsell path and price per senior.
+	5.	Sketch an XR proof-of-concept (Unity or WebXR) where Chloe’s avatar walks the OU campus, answers major-specific questions—use it as pitch fodder for universities.
+
+Execute, measure revenue per seat, and double down where CAC ≪ LTV. With the persona in place, every new agent is a thin service layer riding the same data rail—you’re effectively building the operating system for a student’s early-adult life.

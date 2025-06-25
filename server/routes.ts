@@ -18,6 +18,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register agent routes
   registerAgentRoutes(app);
+  
+  // Register scholarship application routes
+  const { registerScholarshipApplicationRoutes } = await import('./routes/scholarship-applications');
+  registerScholarshipApplicationRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

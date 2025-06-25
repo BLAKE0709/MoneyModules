@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import AdminKPIDashboard from "@/components/admin-kpi-dashboard";
 import InstitutionalReadinessTracker from "@/components/institutional-readiness-tracker";
 import EthicsTransparencyCenter from "@/components/ethics-transparency-center";
+import AIProviderSelector from "@/components/ai-provider-selector";
 
 export default function Admin() {
   const { user } = useAuth();

@@ -342,8 +342,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/scholarships/matches', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const matches = await storage.getScholarshipMatches(userId);
-      res.json(matches);
+      const { scholarshipMatchingEngine } = await import('./services/scholarship-database');
+      
+      // Get student persona for matching
+      const persona = await storage.getStudentPersona(userId);
+      if (!persona) {
+        return res.status(400).json({ 
+          message: "Complete your student profile first to get personalized scholarship matches" 
+        });
+      }
+
+      // Find AI-powered matches from real scholarship database
+      const aiMatches = await scholarshipMatchingEngine.findMatchedScholarships(persona);
+      
+      // Get stored matches from database
+      const storedMatches = await storage.getScholarshipMatches(userId);
+      
+      // Generate personalized recommendations
+      const recommendations = await scholarshipMatchingEngine.generatePersonalizedRecommendations(aiMatches);
+
+      res.json({
+        matches: aiMatches.slice(0, 10), // Top 10 matches
+        totalFound: aiMatches.length,
+        storedMatches,
+        recommendations,
+        profileCompleteness: this.calculateProfileCompleteness(persona),
+        lastUpdated: new Date()
+      });
     } catch (error) {
       console.error("Error fetching scholarship matches:", error);
       res.status(500).json({ message: "Failed to fetch scholarship matches" });

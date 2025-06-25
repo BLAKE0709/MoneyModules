@@ -15,14 +15,23 @@ export default function ScholarshipScoutDemo() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: matches = [], isLoading, refetch } = useQuery({
+  const { data: matches = [], isLoading, refetch, error } = useQuery({
     queryKey: ['/api/scholarships/matches'],
-    enabled: !!user?.id,
+    enabled: !!(user as any)?.id,
+    retry: (failureCount, error: any) => {
+      // Don't retry on 4xx errors (client errors)
+      if (error?.status >= 400 && error?.status < 500) {
+        return false;
+      }
+      // Retry up to 3 times for other errors
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const refreshMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/scholarships/matches?force=true');
+      const response = await apiRequest('/api/scholarships/matches?force=true', 'GET');
       return response;
     },
     onSuccess: () => {
@@ -70,9 +79,10 @@ export default function ScholarshipScoutDemo() {
     return `${Math.ceil(diffDays / 30)} months left`;
   };
 
-  const totalValue = matches.reduce((sum: number, match: any) => sum + (match.amount || 0), 0);
-  const avgMatchScore = matches.length > 0 
-    ? Math.round(matches.reduce((sum: number, match: any) => sum + (match.matchScore || 0), 0) / matches.length)
+  const matchesArray = Array.isArray(matches) ? matches as any[] : [];
+  const totalValue = matchesArray.reduce((sum: number, match: any) => sum + (match.amount || 0), 0);
+  const avgMatchScore = matchesArray.length > 0 
+    ? Math.round(matchesArray.reduce((sum: number, match: any) => sum + (match.matchScore || 0), 0) / matchesArray.length)
     : 0;
 
   if (isLoading) {
@@ -89,6 +99,37 @@ export default function ScholarshipScoutDemo() {
             <div className="h-4 bg-gray-200 rounded animate-pulse" />
             <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
             <div className="h-20 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle error state (incomplete profile)
+  if (error && (error as any)?.status === 400) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            ScholarshipScout
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="mb-4">
+              <Clock className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+              <h3 className="text-lg font-medium text-gray-900">Complete Your Profile</h3>
+              <p className="text-gray-600 mt-2">
+                To find personalized scholarship matches, please complete your student profile first.
+              </p>
+            </div>
+            <Button 
+              onClick={() => {window.location.href = '/persona'}}
+              className="mt-4"
+            >
+              Complete Profile
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -118,10 +159,10 @@ export default function ScholarshipScoutDemo() {
           </div>
         </CardHeader>
         <CardContent>
-          {matches.length > 0 ? (
+          {matchesArray.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{matches.length}</div>
+                <div className="text-2xl font-bold text-gray-900">{matchesArray.length}</div>
                 <div className="text-sm text-gray-600">Matches Found</div>
               </div>
               <div className="text-center">
@@ -170,9 +211,9 @@ export default function ScholarshipScoutDemo() {
       </Card>
 
       {/* Scholarship Matches */}
-      {matches.length > 0 && (
+      {matchesArray.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {matches.slice(0, 4).map((match: any, index: number) => (
+          {matchesArray.slice(0, 4).map((match: any, index: number) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

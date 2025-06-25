@@ -154,11 +154,27 @@ export const scholarshipMatches = pgTable("scholarship_matches", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Student writing samples repository
+export const writingSamples = pgTable("writing_samples", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  filename: varchar("filename").notNull(),
+  originalName: varchar("original_name").notNull(),
+  content: text("content").notNull(),
+  fileType: varchar("file_type").notNull(), // pdf, docx, txt
+  fileSize: integer("file_size").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  tags: text("tags").array(),
+  notes: text("notes"),
+  isAnalyzed: boolean("is_analyzed").default(false),
+  writingStyle: jsonb("writing_style"), // AI analysis of writing patterns
+});
+
 // Activity tracking for analytics
 export const activities = pgTable("activities", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: varchar("user_id").notNull().references(() => users.id),
-  type: varchar("type").notNull(), // essay_polished, profile_updated, scholarship_found
+  type: varchar("type").notNull(), // essay_polished, profile_updated, scholarship_found, writing_sample_uploaded
   description: text("description"),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -173,9 +189,17 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   essays: many(essays),
   scholarshipMatches: many(scholarshipMatches),
   activities: many(activities),
+  writingSamples: many(writingSamples),
   school: one(schools, {
     fields: [users.schoolId],
     references: [schools.id],
+  }),
+}));
+
+export const writingSamplesRelations = relations(writingSamples, ({ one }) => ({
+  user: one(users, {
+    fields: [writingSamples.userId],
+    references: [users.id],
   }),
 }));
 
@@ -284,6 +308,11 @@ export const insertActivitySchema = createInsertSchema(activities).omit({
   createdAt: true,
 });
 
+export const insertWritingSampleSchema = createInsertSchema(writingSamples).omit({
+  id: true,
+  uploadedAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -303,3 +332,5 @@ export type ScholarshipMatch = typeof scholarshipMatches.$inferSelect;
 export type InsertScholarshipMatch = z.infer<typeof insertScholarshipMatchSchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type WritingSample = typeof writingSamples.$inferSelect;
+export type InsertWritingSample = z.infer<typeof insertWritingSampleSchema>;

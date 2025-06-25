@@ -8,6 +8,7 @@ import {
   scholarships,
   scholarshipMatches,
   activities,
+  writingSamples,
   type User,
   type UpsertUser,
   type School,
@@ -26,6 +27,8 @@ import {
   type InsertScholarshipMatch,
   type Activity,
   type InsertActivity,
+  type WritingSample,
+  type InsertWritingSample,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, count, sql } from "drizzle-orm";
@@ -75,6 +78,12 @@ export interface IStorage {
   getActivities(userId: string): Promise<Activity[]>;
   getRecentActivities(limit?: number): Promise<Activity[]>;
   createActivity(activity: InsertActivity): Promise<Activity>;
+
+  // Writing samples operations
+  getWritingSamples(userId: string): Promise<WritingSample[]>;
+  createWritingSample(sample: InsertWritingSample): Promise<WritingSample>;
+  deleteWritingSample(id: string): Promise<void>;
+  updateWritingSample(id: string, sample: Partial<InsertWritingSample>): Promise<WritingSample>;
 
   // Analytics operations
   getSchoolAnalytics(schoolId: string): Promise<{
@@ -278,6 +287,33 @@ export class DatabaseStorage implements IStorage {
   async createActivity(activity: InsertActivity): Promise<Activity> {
     const [newActivity] = await db.insert(activities).values(activity).returning();
     return newActivity;
+  }
+
+  // Writing samples operations
+  async getWritingSamples(userId: string): Promise<WritingSample[]> {
+    return await db
+      .select()
+      .from(writingSamples)
+      .where(eq(writingSamples.userId, userId))
+      .orderBy(desc(writingSamples.uploadedAt));
+  }
+
+  async createWritingSample(sample: InsertWritingSample): Promise<WritingSample> {
+    const [newSample] = await db.insert(writingSamples).values(sample).returning();
+    return newSample;
+  }
+
+  async deleteWritingSample(id: string): Promise<void> {
+    await db.delete(writingSamples).where(eq(writingSamples.id, id));
+  }
+
+  async updateWritingSample(id: string, sample: Partial<InsertWritingSample>): Promise<WritingSample> {
+    const [updatedSample] = await db
+      .update(writingSamples)
+      .set(sample)
+      .where(eq(writingSamples.id, id))
+      .returning();
+    return updatedSample;
   }
 
   // Analytics operations

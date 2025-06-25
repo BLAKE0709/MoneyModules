@@ -7,7 +7,7 @@ interface MobileMenuProps {
 export default function MobileMenu({ activeTab, onTabChange, userRole }: MobileMenuProps) {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-40">
-      <div className="grid grid-cols-4 gap-1 p-2">
+      <div className="grid grid-cols-5 gap-1 p-2">
         <button 
           className={`flex flex-col items-center py-2 px-1 transition-colors ${
             activeTab === "dashboard" ? "text-primary" : "text-neutral-500"
@@ -30,6 +30,18 @@ export default function MobileMenu({ activeTab, onTabChange, userRole }: MobileM
             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
           </svg>
           <span className="text-xs font-medium">Essays</span>
+        </button>
+        
+        <button 
+          className={`flex flex-col items-center py-2 px-1 transition-colors ${
+            activeTab === "writing-repository" ? "text-primary" : "text-neutral-500"
+          }`}
+          onClick={() => onTabChange("writing-repository")}
+        >
+          <svg className="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+          </svg>
+          <span className="text-xs font-medium">Repository</span>
         </button>
         
         <button 

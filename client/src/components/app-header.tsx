@@ -60,18 +60,20 @@ export default function AppHeader({ user, activeTab, onTabChange }: AppHeaderPro
                 Essay Polish
               </button>
               <button 
+                onClick={() => onTabChange("writing-repository")}
+                className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
+                  activeTab === "writing-repository" ? "text-primary" : ""
+                }`}
+              >
+                Writing Repository
+              </button>
+              <button 
                 onClick={() => onTabChange("persona")}
                 className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
                   activeTab === "persona" ? "text-primary" : ""
                 }`}
               >
                 My Profile
-              </button>
-              <button 
-                onClick={() => onTabChange("scholarships")}
-                className="text-neutral-800 hover:text-primary transition-colors font-medium"
-              >
-                Scholarships
               </button>
             </nav>
           </div>

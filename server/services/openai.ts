@@ -19,12 +19,18 @@ export interface EssayAnalysis {
 
 export async function analyzeEssay(
   content: string,
-  type: string,
-  wordLimit?: number
+  prompt: string,
+  essayType: string,
+  writingSamples?: string[]
 ): Promise<EssayAnalysis> {
+  const writingStyleContext = writingSamples && writingSamples.length > 0 
+    ? `\n\nWriting Style Reference - Use these samples to understand the student's natural voice and style:\n${writingSamples.join('\n\n---\n\n')}`
+    : '';
+
   try {
-    const prompt = `Analyze this ${type} essay and provide a comprehensive analysis. 
-    ${wordLimit ? `The word limit is ${wordLimit} words.` : ''}
+    const analysisPrompt = `Analyze this ${essayType} essay and provide a comprehensive analysis.
+    
+    Essay Prompt: ${prompt}
     
     Please evaluate the essay on the following criteria and provide scores out of 10:
     1. Clarity - How clear and well-structured is the writing?
@@ -33,8 +39,10 @@ export async function analyzeEssay(
     
     Also provide 2-3 specific improvement suggestions with their impact level (high/medium/low).
     
+    ${writingSamples && writingSamples.length > 0 ? 'Consider the student\'s writing style from the reference samples when making suggestions. Maintain their authentic voice while improving the essay.' : ''}
+    
     Essay content:
-    ${content}
+    ${content}${writingStyleContext}
     
     Respond with JSON in this format:
     {

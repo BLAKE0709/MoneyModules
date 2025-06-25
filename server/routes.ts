@@ -7,7 +7,8 @@ import {
   insertStudentPersonaSchema,
   insertEssaySchema,
   insertScholarshipSchema,
-  insertSchoolSchema 
+  insertSchoolSchema,
+  insertWritingSampleSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -406,6 +407,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching admin activities:", error);
       res.status(500).json({ message: "Failed to fetch activities" });
+    }
+  });
+
+  // Writing samples routes
+  app.get('/api/writing-samples', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const samples = await storage.getWritingSamples(userId);
+      res.json(samples);
+    } catch (error) {
+      console.error("Error fetching writing samples:", error);
+      res.status(500).json({ message: "Failed to fetch writing samples" });
+    }
+  });
+
+  app.post('/api/writing-samples', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertWritingSampleSchema.parse({
+        ...req.body,
+        userId,
+      });
+      
+      const sample = await storage.createWritingSample(validatedData);
+      
+      // Create activity record
+      await storage.createActivity({
+        userId,
+        type: "writing_sample_uploaded",
+        description: `Writing sample uploaded: ${sample.originalName}`,
+        metadata: { sampleId: sample.id, fileType: sample.fileType },
+      });
+      
+      res.json(sample);
+    } catch (error) {
+      console.error("Error creating writing sample:", error);
+      res.status(500).json({ message: "Failed to upload writing sample" });
+    }
+  });
+
+  app.delete('/api/writing-samples/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { id } = req.params;
+      
+      await storage.deleteWritingSample(id);
+      
+      // Create activity record
+      await storage.createActivity({
+        userId,
+        type: "writing_sample_deleted",
+        description: "Writing sample deleted",
+        metadata: { sampleId: id },
+      });
+      
+      res.json({ message: "Writing sample deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting writing sample:", error);
+      res.status(500).json({ message: "Failed to delete writing sample" });
     }
   });
 

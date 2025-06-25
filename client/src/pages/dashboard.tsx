@@ -101,6 +101,9 @@ export default function Dashboard() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-6">
+        {/* Multi-Agent System Showcase */}
+        <AgentShowcase />
+
         {/* Welcome Card */}
         <Card className="shadow-material">
           <CardContent className="p-6">
@@ -110,7 +113,7 @@ export default function Dashboard() {
                   Welcome back, {user?.firstName || "Student"}!
                 </h2>
                 <p className="text-neutral-600 font-source">
-                  Your AI-powered educational journey continues
+                  PersonaLearning, EssayPolish Pro, and ScholarshipScout agents are active
                 </p>
               </div>
               <div className="bg-gradient-primary text-white p-3 rounded-lg shadow-sm">
@@ -199,18 +202,21 @@ export default function Dashboard() {
 
       {/* Sidebar */}
       <div className="space-y-6">
-        {/* AI Assistant Card */}
-        <Card className="bg-gradient-primary text-white shadow-material-lg">
+        {/* Platform Integration Teaser */}
+        <PlatformIntegrationTeaser />
+
+        {/* AI Agent Status */}
+        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-material-lg">
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 3L1 9v6c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V9l-11-6z"/>
+                  <path d="M12,2A2,2 0 0,1 14,2C14,3.11 13.1,4 12,4C10.9,4 10,3.11 10,2A2,2 0 0,1 12,2M21,9V7L15,1H5A2,2 0 0,0 3,3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V9M12,7L17,12L12,17V14H8V10H12V7Z"/>
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">AI Assistant</h3>
-                <p className="text-sm opacity-90">Ready to help</p>
+                <h3 className="font-semibold text-lg">Multi-Agent System</h3>
+                <p className="text-sm opacity-90">3 AI agents active and learning</p>
               </div>
             </div>
             <Button 
@@ -218,9 +224,9 @@ export default function Dashboard() {
               className="w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0"
             >
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4C22,2.89 21.1,2 20,2Z"/>
+                <path d="M12,2A2,2 0 0,1 14,2C14,3.11 13.1,4 12,4C10.9,4 10,3.11 10,2A2,2 0 0,1 12,2M21,9V7L15,1H5A2,2 0 0,0 3,3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V9M12,7L17,12L12,17V14H8V10H12V7Z"/>
               </svg>
-              Start Conversation
+              View Agent Dashboard
             </Button>
           </CardContent>
         </Card>

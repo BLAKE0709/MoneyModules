@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import AgentShowcase from "@/components/agent-showcase";
+import PlatformIntegrationTeaser from "@/components/platform-integration-teaser";
 
 export default function Dashboard() {
   const { toast } = useToast();

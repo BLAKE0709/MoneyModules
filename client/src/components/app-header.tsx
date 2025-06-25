@@ -67,22 +67,22 @@ export default function AppHeader({ user, activeTab, onTabChange }: AppHeaderPro
               >
                 Writing Repository
               </button>
-              <button 
-                onClick={() => onTabChange("agents")}
+              <a 
+                href="/agents"
                 className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
                   activeTab === "agents" ? "text-primary" : ""
                 }`}
               >
                 AI Agents
-              </button>
-              <button 
-                onClick={() => onTabChange("integrations")}
+              </a>
+              <a 
+                href="/integrations"
                 className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
                   activeTab === "integrations" ? "text-primary" : ""
                 }`}
               >
                 Platform Hub
-              </button>
+              </a>
               <button 
                 onClick={() => onTabChange("persona")}
                 className={`text-neutral-800 hover:text-primary transition-colors font-medium ${

@@ -26,11 +26,11 @@ export async function analyzeEssay(
   writingSamples?: string[]
 ): Promise<EssayAnalysis> {
   const writingStyleContext = writingSamples && writingSamples.length > 0 
-    ? `\n\nWriting Style Reference - Use these samples to understand the student's natural voice and style:\n${writingSamples.join('\n\n---\n\n')}`
+    ? `\n\nWRITING STYLE DNA - Use these authentic samples to understand this student's natural voice, vocabulary choices, sentence patterns, and personal expression style. ALL suggestions must preserve this authentic voice:\n\n${writingSamples.map((sample, idx) => `Sample ${idx + 1}:\n${sample}`).join('\n\n---\n\n')}`
     : '';
 
   try {
-    const analysisPrompt = `Analyze this ${essayType} essay and provide a comprehensive analysis.
+    const analysisPrompt = `Analyze this ${essayType} essay and provide a comprehensive analysis that preserves the student's authentic voice.
     
     Essay Prompt: ${prompt}
     

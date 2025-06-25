@@ -190,18 +190,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Essay Analysis route
+  // AI Essay Analysis route with voice preservation
   app.post('/api/essays/:id/analyze', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const { id } = req.params;
       
       const essay = await storage.getEssay(id);
-      if (!essay) {
+      if (!essay || essay.userId !== userId) {
         return res.status(404).json({ message: "Essay not found" });
       }
-      
-      const analysis = await analyzeEssay(essay.content, essay.type, essay.wordLimit || undefined);
+
+      // Get user's writing samples for voice preservation
+      const writingSamples = await storage.getWritingSamples(userId);
+      const sampleContents = writingSamples.map(sample => sample.content);
+
+      const analysis = await analyzeEssay(
+        essay.content,
+        essay.prompt || "No prompt provided",
+        essay.type,
+        sampleContents
+      );
       
       // Update essay with AI scores
       const updatedEssay = await storage.updateEssay(id, {

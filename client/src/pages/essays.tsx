@@ -310,7 +310,7 @@ export default function Essays() {
           </svg>
         </div>
         <h3 className="text-xl font-semibold text-neutral-800 mb-2">No Essays Yet</h3>
-        <p className="text-neutral-600 mb-6">Create your first essay to get started with AI-powered polishing</p>
+        <p className="text-neutral-600 mb-6">Create your first essay to get started with voice-preserving AI analysis from EssayPolish Pro</p>
         <div className="flex gap-4">
           <Button 
             onClick={() => setIsCreating(true)}
@@ -330,7 +330,7 @@ export default function Essays() {
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12,2A2,2 0 0,1 14,2C14,3.11 13.1,4 12,4C10.9,4 10,3.11 10,2A2,2 0 0,1 12,2M21,9V7L15,1H5A2,2 0 0,0 3,3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V9M12,7L17,12L12,17V14H8V10H12V7Z"/>
               </svg>
-              Try AI Polish Pro
+              Try EssayPolish Pro
             </a>
           </Button>
         </div>
@@ -342,8 +342,18 @@ export default function Essays() {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-neutral-800">Your Essays</h2>
-          <Button 
+          <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-neutral-800">Your Essays</h2>
+          </div>
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12,2A2,2 0 0,1 14,2C14,3.11 13.1,4 12,4C10.9,4 10,3.11 10,2A2,2 0 0,1 12,2M21,9V7L15,1H5A2,2 0 0,0 3,3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V9M12,7L17,12L12,17V14H8V10H12V7Z"/>
+            </svg>
+            EssayPolish Pro Active
+          </div>
+        </div>
+        <Button 
             onClick={() => setIsCreating(true)}
             className="bg-primary hover:bg-blue-700"
           >

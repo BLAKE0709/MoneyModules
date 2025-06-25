@@ -7,6 +7,7 @@ import EnhancedEssaysPage from "@/components/enhanced-essays-page";
 import WritingRepository from "@/pages/writing-repository";
 import Persona from "@/pages/persona";
 import Admin from "@/pages/admin";
+import EnhancedNavigation from "@/components/enhanced-navigation";
 
 export default function Home() {
   const { user } = useAuth();

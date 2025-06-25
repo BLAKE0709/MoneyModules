@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import AgentShowcase from "@/components/agent-showcase";
 import PlatformIntegrationTeaser from "@/components/platform-integration-teaser";
 import AIUsageDemo from "@/components/ai-usage-demo";
+import ScholarshipScoutDemo from "@/components/scholarship-scout-demo";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -208,6 +209,9 @@ export default function Dashboard() {
         
         {/* AI Usage Portfolio Demo */}
         <AIUsageDemo />
+        
+        {/* ScholarshipScout Demo */}
+        <ScholarshipScoutDemo />
 
         {/* AI Agent Status */}
         <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-material-lg">

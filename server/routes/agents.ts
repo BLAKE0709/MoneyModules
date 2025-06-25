@@ -5,6 +5,7 @@ import { personaLearningAgent } from "../services/agents/persona-learning-agent"
 import { essayPolishAgent } from "../services/agents/essay-polish-agent";
 import { scholarshipScoutAgent } from "../services/agents/scholarship-scout-agent";
 import { b2bIntegrationService } from "../services/b2b-integration";
+import { platformIntegrationService } from "../services/platform-integration";
 import type { AgentContext } from "@shared/agent-types";
 
 export function registerAgentRoutes(app: Express) {
@@ -232,6 +233,79 @@ export function registerAgentRoutes(app: Express) {
     } catch (error) {
       console.error("External API error:", error);
       res.status(500).json({ success: false, error: "External API request failed" });
+    }
+  });
+
+  // Platform Integration Routes - Educational Platform Tether
+  app.post('/api/platform/register', isAuthenticated, async (req: any, res) => {
+    try {
+      const platformConfig = req.body;
+      const platformId = await platformIntegrationService.registerPlatform(platformConfig);
+      res.json({ success: true, data: { platformId } });
+    } catch (error) {
+      console.error("Platform registration error:", error);
+      res.status(500).json({ success: false, error: "Failed to register platform" });
+    }
+  });
+
+  app.post('/api/platform/ingest', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const platformData = req.body;
+      
+      await platformIntegrationService.ingestPlatformData(userId, platformData);
+      res.json({ success: true, data: { integrated: true } });
+    } catch (error) {
+      console.error("Platform data ingestion error:", error);
+      res.status(500).json({ success: false, error: "Failed to ingest platform data" });
+    }
+  });
+
+  app.get('/api/platform/ai-portfolio', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const portfolio = await platformIntegrationService.generateAIUsagePortfolio(userId);
+      res.json({ success: true, data: portfolio });
+    } catch (error) {
+      console.error("AI portfolio generation error:", error);
+      res.status(500).json({ success: false, error: "Failed to generate AI portfolio" });
+    }
+  });
+
+  app.post('/api/platform/package/:type', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { type } = req.params;
+      
+      const integrationPackage = await platformIntegrationService.createIntegrationPackage(userId, type);
+      res.json({ success: true, data: integrationPackage });
+    } catch (error) {
+      console.error("Integration package creation error:", error);
+      res.status(500).json({ success: false, error: "Failed to create integration package" });
+    }
+  });
+
+  // Webhook endpoint for external platforms to push data
+  app.post('/api/webhook/platform/:platformId', async (req, res) => {
+    try {
+      const { platformId } = req.params;
+      const { userId, learningData, apiKey } = req.body;
+      
+      // Validate webhook authentication
+      if (!apiKey) {
+        return res.status(401).json({ error: "API key required" });
+      }
+      
+      // Process platform data
+      await platformIntegrationService.ingestPlatformData(userId, {
+        platformId,
+        ...learningData
+      });
+      
+      res.json({ success: true, message: "Data integrated successfully" });
+    } catch (error) {
+      console.error("Webhook processing error:", error);
+      res.status(500).json({ success: false, error: "Webhook processing failed" });
     }
   });
 }

@@ -76,6 +76,14 @@ export default function AppHeader({ user, activeTab, onTabChange }: AppHeaderPro
                 AI Agents
               </button>
               <button 
+                onClick={() => onTabChange("integrations")}
+                className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
+                  activeTab === "integrations" ? "text-primary" : ""
+                }`}
+              >
+                Platform Hub
+              </button>
+              <button 
                 onClick={() => onTabChange("persona")}
                 className={`text-neutral-800 hover:text-primary transition-colors font-medium ${
                   activeTab === "persona" ? "text-primary" : ""

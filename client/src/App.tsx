@@ -13,6 +13,7 @@ import Admin from "@/pages/admin";
 import WritingRepository from "@/pages/writing-repository";
 import NotFound from "@/pages/not-found";
 import AgentDashboard from "@/components/agent-dashboard";
+import PlatformIntegrationDashboard from "@/components/platform-integration-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,6 +29,7 @@ function Router() {
           <Route path="/essays" component={Essays} />
           <Route path="/writing-repository" component={WritingRepository} />
           <Route path="/agents" component={AgentDashboard} />
+          <Route path="/integrations" component={PlatformIntegrationDashboard} />
           <Route path="/persona" component={Persona} />
           <Route path="/admin" component={Admin} />
         </>

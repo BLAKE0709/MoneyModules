@@ -311,15 +311,29 @@ export default function Essays() {
         </div>
         <h3 className="text-xl font-semibold text-neutral-800 mb-2">No Essays Yet</h3>
         <p className="text-neutral-600 mb-6">Create your first essay to get started with AI-powered polishing</p>
-        <Button 
-          onClick={() => setIsCreating(true)}
-          className="bg-primary hover:bg-blue-700"
-        >
-          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
-          </svg>
-          Create New Essay
-        </Button>
+        <div className="flex gap-4">
+          <Button 
+            onClick={() => setIsCreating(true)}
+            className="bg-primary hover:bg-blue-700"
+          >
+            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+            </svg>
+            Create New Essay
+          </Button>
+          <Button 
+            asChild
+            variant="outline"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50"
+          >
+            <a href="/agents">
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12,2A2,2 0 0,1 14,2C14,3.11 13.1,4 12,4C10.9,4 10,3.11 10,2A2,2 0 0,1 12,2M21,9V7L15,1H5A2,2 0 0,0 3,3V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V9M12,7L17,12L12,17V14H8V10H12V7Z"/>
+              </svg>
+              Try AI Polish Pro
+            </a>
+          </Button>
+        </div>
       </div>
     );
   }

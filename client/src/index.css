@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(112, 50%, 36%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(36, 100%, 50%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  --success: hsl(122, 39%, 49%);
+  --warning: hsl(36, 100%, 50%);
+  --error: hsl(4, 90%, 58%);
+  --neutral-50: hsl(0, 0%, 96%);
+  --neutral-100: hsl(0, 0%, 88%);
+  --neutral-800: hsl(0, 0%, 26%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(112, 50%, 36%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(36, 100%, 50%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+  --success: hsl(122, 39%, 49%);
+  --warning: hsl(36, 100%, 50%);
+  --error: hsl(4, 90%, 58%);
+  --neutral-50: hsl(240, 6%, 10%);
+  --neutral-100: hsl(240, 3.7%, 15.9%);
+  --neutral-800: hsl(0, 0%, 98%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-inter antialiased bg-background text-foreground;
+    font-family: 'Inter', 'Source Sans Pro', sans-serif;
+  }
+}
+
+/* Custom utility classes for the design */
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-source {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.shadow-material {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.shadow-material-lg {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
+}
+
+/* Tab styles */
+.tab-btn {
+  @apply transition-colors duration-200;
+}
+
+.tab-btn.active {
+  @apply border-primary text-primary;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(112, 50%, 36%) 100%);
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, hsl(112, 50%, 36%) 0%, hsl(36, 100%, 50%) 100%);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .mobile-tab-active {
+    @apply text-primary;
+  }
+}

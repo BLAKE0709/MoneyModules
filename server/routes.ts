@@ -633,6 +633,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Import and register email notification routes
+  const { registerEmailRoutes } = await import('./routes/email-notifications');
+  registerEmailRoutes(app);
+  
+  // Import and register parent dashboard routes
+  const { registerParentRoutes } = await import('./routes/parent-dashboard');
+  registerParentRoutes(app);
+  
+  // Import and register mobile API routes
+  const { registerMobileRoutes } = await import('./routes/mobile-api');
+  registerMobileRoutes(app);
+
   const httpServer = createServer(app);
   return httpServer;
 }

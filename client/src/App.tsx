@@ -16,10 +16,26 @@ import AgentDashboard from "@/components/agent-dashboard";
 import PlatformIntegrationDashboard from "@/components/platform-integration-dashboard";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  
+  // Get deadline alerts for mobile notifications
+  const { data: deadlineAlerts = [] } = useQuery({
+    queryKey: ['/api/scholarships/deadline-alerts'],
+    enabled: isAuthenticated,
+    retry: false,
+  });
+  
+  // Count upcoming deadlines for navigation badge
+  const upcomingDeadlines = deadlineAlerts.filter((alert: any) => alert.daysLeft <= 7).length;
 
   return (
-    <Switch>
+    <>
+      {/* Mobile deadline alerts - only show on mobile */}
+      {isAuthenticated && (
+        <MobileDeadlineAlert alerts={deadlineAlerts} />
+      )}
+      
+      <Switch>
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
@@ -34,8 +50,28 @@ function Router() {
           <Route path="/admin" component={Admin} />
         </>
       )}
-      <Route component={NotFound} />
-    </Switch>
+            <Route 
+              path="/parent/:studentId" 
+              component={({ params }: any) => (
+                <ParentDashboard 
+                  studentId={params.studentId} 
+                  studentName={user?.firstName || "Student"}
+                />
+              )} 
+            />
+          </>
+        )}
+        <Route component={NotFound} />
+      </Switch>
+      
+      {/* Mobile navigation - only show when authenticated */}
+      {isAuthenticated && (
+        <MobileNavigation 
+          upcomingDeadlines={upcomingDeadlines}
+          unreadNotifications={0}
+        />
+      )}
+    </>
   );
 }
 

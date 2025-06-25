@@ -14,6 +14,7 @@ import AdminKPIDashboard from "@/components/admin-kpi-dashboard";
 import InstitutionalReadinessTracker from "@/components/institutional-readiness-tracker";
 import EthicsTransparencyCenter from "@/components/ethics-transparency-center";
 import AIProviderSelector from "@/components/ai-provider-selector";
+import AIProviderStatus from "@/components/ai-provider-status";
 
 export default function Admin() {
   const { user } = useAuth();

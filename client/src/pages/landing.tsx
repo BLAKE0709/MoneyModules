@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import FutureReadyMessaging from "@/components/future-ready-messaging";
+import InstitutionalAIShowcase from "@/components/institutional-ai-showcase";
+import { Brain, Target, Star, Users, Building, TrendingUp } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -72,6 +75,54 @@ export default function Landing() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Future-Ready Messaging */}
+        <div className="mb-8">
+          <FutureReadyMessaging audience="parents" />
+        </div>
+
+        {/* AI Provider Flexibility Section */}
+        <Card className="shadow-material mb-8">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-neutral-800 mb-4">
+              Works with Any AI Provider
+            </h2>
+            <p className="text-neutral-600 mb-6 max-w-2xl mx-auto">
+              Universities can use their preferred AI models - OpenAI, Anthropic, Google, Azure, or custom LLMs. 
+              StudentOS adapts to your institution's AI infrastructure while providing consistent educational benefits.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+              <div className="text-center p-4 bg-neutral-50 rounded-lg">
+                <Brain className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                <div className="text-sm font-medium">OpenAI</div>
+              </div>
+              <div className="text-center p-4 bg-neutral-50 rounded-lg">
+                <Building className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                <div className="text-sm font-medium">Anthropic</div>
+              </div>
+              <div className="text-center p-4 bg-neutral-50 rounded-lg">
+                <Star className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                <div className="text-sm font-medium">Google</div>
+              </div>
+              <div className="text-center p-4 bg-neutral-50 rounded-lg">
+                <Target className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                <div className="text-sm font-medium">Azure</div>
+              </div>
+              <div className="text-center p-4 bg-neutral-50 rounded-lg">
+                <Users className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+                <div className="text-sm font-medium">Custom</div>
+              </div>
+            </div>
+            <p className="text-sm text-neutral-500">
+              Essential educational infrastructure that adapts to your technology choices
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Institutional AI Showcase */}
+        <div className="mb-8">
+          <InstitutionalAIShowcase />
+        </div>
 
         {/* Trust indicators */}
         <div className="text-center text-neutral-600">

@@ -17,133 +17,133 @@ class EmailService {
   private templates: Record<string, EmailTemplate> = {
     welcome: {
       subject: "Welcome to StudentOS - Your AI-Powered Academic Journey Begins!",
-      content: `
-Hello {{firstName}},
-
-Welcome to StudentOS! We're excited to help you excel in your academic journey with our AI-powered tools while maintaining your authentic voice.
-
-Here's what you can do right away:
-• Upload writing samples to build your Voice DNA profile
-• Discover scholarships matched to your profile
-• Get AI-powered essay analysis and improvement suggestions
-
-Get started: {{platformUrl}}
-
-Best regards,
-The StudentOS Team
-      `
+      content: [
+        "Hello {{firstName}},",
+        "",
+        "Welcome to StudentOS! We're excited to help you excel in your academic journey with our AI-powered tools while maintaining your authentic voice.",
+        "",
+        "Here's what you can do right away:",
+        "• Upload writing samples to build your Voice DNA profile",
+        "• Discover scholarships matched to your profile",
+        "• Get AI-powered essay analysis and improvement suggestions",
+        "",
+        "Get started: {{platformUrl}}",
+        "",
+        "Best regards,",
+        "The StudentOS Team"
+      ].join('\n')
     },
     
     scholarship_deadline: {
       subject: "🚨 Scholarship Deadline Alert: {{scholarshipTitle}}",
-      content: `
-Hi {{firstName}},
-
-The deadline for "{{scholarshipTitle}}" is approaching fast!
-
-💰 Amount: ${{amount}}
-📅 Deadline: {{deadline}}
-⏰ Days left: {{daysLeft}}
-🎯 Match score: {{matchScore}}%
-
-Don't miss out on this opportunity. Apply now: {{applicationUrl}}
-
-Need help with your application? Use our AI essay coach to perfect your submissions.
-
-Best of luck,
-StudentOS Team
-      `
+      content: [
+        "Hi {{firstName}},",
+        "",
+        "The deadline for \"{{scholarshipTitle}}\" is approaching fast!",
+        "",
+        "💰 Amount: ${{amount}}",
+        "📅 Deadline: {{deadline}}",
+        "⏰ Days left: {{daysLeft}}",
+        "🎯 Match score: {{matchScore}}%",
+        "",
+        "Don't miss out on this opportunity. Apply now: {{applicationUrl}}",
+        "",
+        "Need help with your application? Use our AI essay coach to perfect your submissions.",
+        "",
+        "Best of luck,",
+        "StudentOS Team"
+      ].join('\n')
     },
     
     essay_analysis_complete: {
       subject: "Your Essay Analysis is Ready - {{essayTitle}}",
-      content: `
-Hi {{firstName}},
-
-Great news! We've completed the analysis of your essay "{{essayTitle}}".
-
-📊 Your Scores:
-• Clarity: {{clarityScore}}/10
-• Impact: {{impactScore}}/10  
-• Originality: {{originalityScore}}/10
-• Voice Authenticity: {{voiceScore}}/10
-
-🎯 {{suggestionCount}} improvement suggestions are waiting for you.
-
-The best part? Our Voice DNA technology ensures all suggestions maintain your authentic writing style.
-
-View your analysis: {{essayUrl}}
-
-Keep up the excellent work!
-StudentOS Team
-      `
+      content: [
+        "Hi {{firstName}},",
+        "",
+        "Great news! We've completed the analysis of your essay \"{{essayTitle}}\".",
+        "",
+        "📊 Your Scores:",
+        "• Clarity: {{clarityScore}}/10",
+        "• Impact: {{impactScore}}/10",
+        "• Originality: {{originalityScore}}/10",
+        "• Voice Authenticity: {{voiceScore}}/10",
+        "",
+        "🎯 {{suggestionCount}} improvement suggestions are waiting for you.",
+        "",
+        "The best part? Our Voice DNA technology ensures all suggestions maintain your authentic writing style.",
+        "",
+        "View your analysis: {{essayUrl}}",
+        "",
+        "Keep up the excellent work!",
+        "StudentOS Team"
+      ].join('\n')
     },
     
     new_scholarship_matches: {
       subject: "{{matchCount}} New Scholarship Matches Found!",
-      content: `
-Hi {{firstName}},
-
-We found {{matchCount}} new scholarship opportunities that match your profile perfectly!
-
-Top matches include:
-{{#scholarships}}
-• {{title}} - ${{amount}} ({{matchScore}}% match)
-{{/scholarships}}
-
-View all matches: {{scholarshipsUrl}}
-
-Remember: Early applications often have better success rates. Don't wait!
-
-Best regards,
-StudentOS Team
-      `
+      content: [
+        "Hi {{firstName}},",
+        "",
+        "We found {{matchCount}} new scholarship opportunities that match your profile perfectly!",
+        "",
+        "Top matches include:",
+        "{{#scholarships}}",
+        "• {{title}} - ${{amount}} ({{matchScore}}% match)",
+        "{{/scholarships}}",
+        "",
+        "View all matches: {{scholarshipsUrl}}",
+        "",
+        "Remember: Early applications often have better success rates. Don't wait!",
+        "",
+        "Best regards,",
+        "StudentOS Team"
+      ].join('\n')
     },
     
     weekly_progress: {
       subject: "Your Weekly Progress Report",
-      content: `
-Hi {{firstName}},
-
-Here's your week in review:
-
-📝 Essays: {{essaysAnalyzed}} analyzed with avg score of {{avgScore}}/10
-🏆 Scholarships: {{newMatches}} new matches found
-💡 AI Interactions: {{aiInteractions}} coaching sessions
-🎯 Voice Preservation: {{voiceScore}}% authenticity maintained
-
-Your academic integrity score remains excellent at {{integrityScore}}%.
-
-Keep up the amazing work! Your future self will thank you.
-
-StudentOS Team
-      `
+      content: [
+        "Hi {{firstName}},",
+        "",
+        "Here's your week in review:",
+        "",
+        "📝 Essays: {{essaysAnalyzed}} analyzed with avg score of {{avgScore}}/10",
+        "🏆 Scholarships: {{newMatches}} new matches found",
+        "💡 AI Interactions: {{aiInteractions}} coaching sessions",
+        "🎯 Voice Preservation: {{voiceScore}}% authenticity maintained",
+        "",
+        "Your academic integrity score remains excellent at {{integrityScore}}%.",
+        "",
+        "Keep up the amazing work! Your future self will thank you.",
+        "",
+        "StudentOS Team"
+      ].join('\n')
     },
     
     parent_report: {
       subject: "{{studentName}}'s Academic Progress Report",
-      content: `
-Dear Parent/Guardian,
-
-Here's {{studentName}}'s progress report for this period:
-
-🎓 Academic Integrity Score: {{integrityScore}}% (Excellent)
-📚 Essays Improved: {{essaysCompleted}}
-💰 Scholarship Value Found: ${{scholarshipValue}}
-🤖 AI Assistance Level: Coaching & Enhancement (not replacement)
-
-Key Highlights:
-• Voice authenticity maintained at {{voiceScore}}%
-• Original content percentage: {{originalityScore}}%
-• Zero academic integrity concerns flagged
-
-{{studentName}} is effectively using AI as a learning tool while maintaining academic standards and developing valuable 21st-century skills.
-
-View detailed dashboard: {{parentDashboardUrl}}
-
-Best regards,
-StudentOS Team
-      `
+      content: [
+        "Dear Parent/Guardian,",
+        "",
+        "Here's {{studentName}}'s progress report for this period:",
+        "",
+        "🎓 Academic Integrity Score: {{integrityScore}}% (Excellent)",
+        "📚 Essays Improved: {{essaysCompleted}}",
+        "💰 Scholarship Value Found: ${{scholarshipValue}}",
+        "🤖 AI Assistance Level: Coaching & Enhancement (not replacement)",
+        "",
+        "Key Highlights:",
+        "• Voice authenticity maintained at {{voiceScore}}%",
+        "• Original content percentage: {{originalityScore}}%",
+        "• Zero academic integrity concerns flagged",
+        "",
+        "{{studentName}} is effectively using AI as a learning tool while maintaining academic standards and developing valuable 21st-century skills.",
+        "",
+        "View detailed dashboard: {{parentDashboardUrl}}",
+        "",
+        "Best regards,",
+        "StudentOS Team"
+      ].join('\n')
     }
   };
 

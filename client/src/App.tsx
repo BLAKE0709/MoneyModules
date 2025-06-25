@@ -1,6 +1,6 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,9 @@ import WritingRepository from "@/pages/writing-repository";
 import NotFound from "@/pages/not-found";
 import AgentDashboard from "@/components/agent-dashboard";
 import PlatformIntegrationDashboard from "@/components/platform-integration-dashboard";
+import MobileDeadlineAlert from "./components/mobile-deadline-alert";
+import MobileNavigation from "./components/mobile-navigation";
+import ParentDashboard from "./components/parent-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -26,36 +29,36 @@ function Router() {
   });
   
   // Count upcoming deadlines for navigation badge
-  const upcomingDeadlines = deadlineAlerts.filter((alert: any) => alert.daysLeft <= 7).length;
+  const upcomingDeadlines = Array.isArray(deadlineAlerts) 
+    ? deadlineAlerts.filter((alert: any) => alert.daysLeft <= 7).length 
+    : 0;
 
   return (
     <>
       {/* Mobile deadline alerts - only show on mobile */}
       {isAuthenticated && (
-        <MobileDeadlineAlert alerts={deadlineAlerts} />
+        <MobileDeadlineAlert alerts={Array.isArray(deadlineAlerts) ? deadlineAlerts as any[] : []} />
       )}
       
       <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/essays" component={Essays} />
-          <Route path="/writing-repository" component={WritingRepository} />
-          <Route path="/agents" component={AgentDashboard} />
-          <Route path="/integrations" component={PlatformIntegrationDashboard} />
-          <Route path="/persona" component={Persona} />
-          <Route path="/admin" component={Admin} />
-        </>
-      )}
+        {isLoading || !isAuthenticated ? (
+          <Route path="/" component={Landing} />
+        ) : (
+          <>
+            <Route path="/" component={Home} />
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/essays" component={Essays} />
+            <Route path="/writing-repository" component={WritingRepository} />
+            <Route path="/agents" component={AgentDashboard} />
+            <Route path="/integrations" component={PlatformIntegrationDashboard} />
+            <Route path="/persona" component={Persona} />
+            <Route path="/admin" component={Admin} />
             <Route 
               path="/parent/:studentId" 
               component={({ params }: any) => (
                 <ParentDashboard 
                   studentId={params.studentId} 
-                  studentName={user?.firstName || "Student"}
+                  studentName={(user as any)?.firstName || "Student"}
                 />
               )} 
             />

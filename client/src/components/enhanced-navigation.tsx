@@ -38,6 +38,12 @@ export default function EnhancedNavigation({ activeTab, onTabChange }: EnhancedN
       label: 'AI Portfolio', 
       icon: '🤖',
       agent: { name: 'AI Proficiency', icon: Bot, active: true }
+    },
+    { 
+      id: 'applications', 
+      label: 'Applications', 
+      icon: '📋',
+      agent: { name: 'ScholarshipScout', icon: Target, active: true }
     }
   ];
 

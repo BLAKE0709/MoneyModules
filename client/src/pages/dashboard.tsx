@@ -271,11 +271,12 @@ export default function Dashboard() {
               <Button 
                 variant="ghost" 
                 className="w-full justify-start p-3 h-auto hover:bg-neutral-50"
+                onClick={() => window.location.href = '/applications'}
               >
-                <svg className="w-5 h-5 text-accent mr-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M15.5,14H20.5L22,15.5V18.5L20.5,20H15.5L14,18.5V15.5L15.5,14M17,15.25A0.75,0.75 0 0,0 16.25,16A0.75,0.75 0 0,0 17,16.75A0.75,0.75 0 0,0 17.75,16A0.75,0.75 0 0,0 17,15.25M7,15H12V17H7V15M7,11H16V13H7V11M7,7H16V9H7V7M3,18V6A2,2 0 0,1 5,4H19A2,2 0 0,1 21,6V13.35C20.37,13.13 19.7,13 19,13A6,6 0 0,0 13,19A6,6 0 0,0 19,25C19.34,25 19.67,24.95 20,24.87V26A2,2 0 0,1 18,28H5A2,2 0 0,1 3,26V18Z"/>
+                <svg className="w-5 h-5 text-green-600 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                 </svg>
-                <span className="font-medium">Find Scholarships</span>
+                <span className="font-medium">Pre-Populated Applications</span>
               </Button>
             </div>
           </CardContent>

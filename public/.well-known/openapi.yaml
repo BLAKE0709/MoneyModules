@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: StudentOS API
+  description: AI-powered educational platform for student proficiency and college readiness
+  version: 1.0.0
+  contact:
+    email: support@studentos.com
+servers:
+  - url: https://studentos.replit.app/api
+    description: Production server
+paths:
+  /ai-usage/import:
+    post:
+      summary: Import ChatGPT conversations for AI proficiency portfolio
+      description: Transform ChatGPT conversation history into professional skill portfolio demonstrating business value
+      operationId: importAIUsage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      messages:
+                        type: array
+                        items:
+                          type: object
+      responses:
+        '200':
+          description: AI usage analysis completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  professionalReadiness:
+                    type: object
+                    properties:
+                      score:
+                        type: number
+                      strengths:
+                        type: array
+                        items:
+                          type: string
+  /essays:
+    get:
+      summary: Get student essays
+      description: Retrieve all essays for the authenticated student
+      operationId: getEssays
+      responses:
+        '200':
+          description: List of student essays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    clarityScore:
+                      type: number
+                    impactScore:
+                      type: number
+                    originalityScore:
+                      type: number
+    post:
+      summary: Create and analyze new essay
+      description: Submit essay for AI analysis and improvement suggestions
+      operationId: createEssay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                essayType:
+                  type: string
+                prompt:
+                  type: string
+      responses:
+        '200':
+          description: Essay created and analyzed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  analysis:
+                    type: object
+                    properties:
+                      clarityScore:
+                        type: number
+                      impactScore:
+                        type: number
+                      originalityScore:
+                        type: number
+  /scholarships/matches:
+    get:
+      summary: Find scholarship matches
+      description: Get personalized scholarship opportunities based on student profile
+      operationId: getScholarshipMatches
+      parameters:
+        - name: force
+          in: query
+          description: Force refresh of scholarship matches
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Scholarship matches found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    provider:
+                      type: string
+                    amount:
+                      type: number
+                    deadline:
+                      type: string
+                      format: date
+                    matchScore:
+                      type: number
+                    applicationUrl:
+                      type: string
+  /persona:
+    get:
+      summary: Get student persona
+      description: Retrieve comprehensive student profile and academic data
+      operationId: getStudentPersona
+      responses:
+        '200':
+          description: Student persona data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gpa:
+                    type: number
+                  satScore:
+                    type: number
+                  actScore:
+                    type: number
+                  intendedMajors:
+                    type: array
+                    items:
+                      type: string
+                  careerGoals:
+                    type: string
+    post:
+      summary: Update student persona
+      description: Update student profile information for better AI recommendations
+      operationId: updateStudentPersona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gpa:
+                  type: number
+                satScore:
+                  type: number
+                actScore:
+                  type: number
+                intendedMajors:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Persona updated successfully
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://studentos.replit.app/api/login
+          tokenUrl: https://studentos.replit.app/api/callback
+          scopes:
+            openid: OpenID Connect
+            profile: User profile access
+            email: Email access
+security:
+  - oauth2: [openid, profile, email]

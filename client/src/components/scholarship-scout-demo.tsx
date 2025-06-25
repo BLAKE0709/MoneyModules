@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Target, DollarSign, Calendar, ExternalLink, RefreshCw, CheckCircle2, Clock, TrendingUp } from "lucide-react";
+import { Target, DollarSign, Calendar, ExternalLink, RefreshCw, CheckCircle2, Clock, TrendingUp, Crown } from "lucide-react";
+import UpgradeBanner from "./upgrade-banner";
 
 export default function ScholarshipScoutDemo() {
   const { user } = useAuth();
@@ -96,6 +97,12 @@ export default function ScholarshipScoutDemo() {
 
   return (
     <div className="space-y-6">
+      {/* Premium scholarship upgrade banner */}
+      <UpgradeBanner 
+        context="premium-scholarships"
+        feature="Premium Scholarship Database"
+      />
+
       {/* Overview Stats */}
       <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
         <CardHeader>

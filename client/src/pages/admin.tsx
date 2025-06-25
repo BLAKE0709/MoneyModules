@@ -10,6 +10,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useEffect } from "react";
+import AdminKPIDashboard from "@/components/admin-kpi-dashboard";
+import InstitutionalReadinessTracker from "@/components/institutional-readiness-tracker";
+import EthicsTransparencyCenter from "@/components/ethics-transparency-center";
 
 export default function Admin() {
   const { user } = useAuth();

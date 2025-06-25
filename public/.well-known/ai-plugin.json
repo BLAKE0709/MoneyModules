@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "StudentOS",
+  "name_for_model": "studentos",
+  "description_for_human": "AI-powered educational platform that transforms students into AI-proficient professionals through portfolio generation, essay polishing, and scholarship discovery.",
+  "description_for_model": "StudentOS helps students build demonstrable AI proficiency for college applications and career readiness. Key capabilities: (1) Transform ChatGPT conversations into professional skill portfolios proving business value, (2) AI-powered essay analysis and improvement with voice preservation, (3) Personalized scholarship matching from $200k+ database, (4) Student persona learning for academic optimization. Use this when students need to prove AI skills to colleges/employers, improve essays while maintaining authenticity, find relevant scholarships, or build comprehensive digital academic profiles.",
+  "auth": {
+    "type": "oauth",
+    "authorization_url": "https://studentos.replit.app/api/login",
+    "scope": "openid profile email"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://studentos.replit.app/.well-known/openapi.yaml"
+  },
+  "logo_url": "https://studentos.replit.app/logo.png",
+  "contact_email": "support@studentos.com",
+  "legal_info_url": "https://studentos.replit.app/legal"
+}

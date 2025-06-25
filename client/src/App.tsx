@@ -12,6 +12,7 @@ import Persona from "@/pages/persona";
 import Admin from "@/pages/admin";
 import WritingRepository from "@/pages/writing-repository";
 import NotFound from "@/pages/not-found";
+import AgentDashboard from "@/components/agent-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,6 +27,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/essays" component={Essays} />
           <Route path="/writing-repository" component={WritingRepository} />
+          <Route path="/agents" component={AgentDashboard} />
           <Route path="/persona" component={Persona} />
           <Route path="/admin" component={Admin} />
         </>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Upload, 
   FileText, 
@@ -16,7 +18,13 @@ import {
   Download,
   FileCheck,
   Calendar,
-  Tag
+  Tag,
+  Search,
+  Filter,
+  SortAsc,
+  Eye,
+  AlertCircle,
+  CheckCircle2
 } from "lucide-react";
 import {
   Dialog,
@@ -34,6 +42,10 @@ export default function WritingRepository() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"date" | "name" | "size">("date");
+  const [filterBy, setFilterBy] = useState<"all" | "analyzed" | "unanalyzed">("all");
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [newSample, setNewSample] = useState({
     originalName: "",
     content: "",
@@ -120,29 +132,66 @@ export default function WritingRepository() {
     }
   };
 
-  const handleFiles = async (files: File[]) => {
+  const handleFiles = useCallback(async (files: File[]) => {
+    const supportedTypes = ["text/plain", ".txt", ".doc", ".docx"];
+    
     for (const file of files) {
+      const fileId = Math.random().toString(36).substr(2, 9);
+      
       if (file.type === "text/plain" || file.name.endsWith(".txt")) {
-        const content = await file.text();
-        const sampleData = {
-          filename: file.name,
-          originalName: file.name,
-          content,
-          fileType: "txt",
-          fileSize: file.size,
-          tags: [],
-          notes: "",
-        };
-        uploadMutation.mutate(sampleData);
+        setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
+        
+        try {
+          // Simulate upload progress for better UX
+          const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+              const current = prev[fileId] || 0;
+              if (current >= 90) {
+                clearInterval(progressInterval);
+                return prev;
+              }
+              return { ...prev, [fileId]: current + 10 };
+            });
+          }, 100);
+
+          const content = await file.text();
+          const sampleData = {
+            filename: file.name,
+            originalName: file.name,
+            content,
+            fileType: "txt",
+            fileSize: file.size,
+            tags: [],
+            notes: "",
+          };
+          
+          await uploadMutation.mutateAsync(sampleData);
+          setUploadProgress(prev => ({ ...prev, [fileId]: 100 }));
+          
+          setTimeout(() => {
+            setUploadProgress(prev => {
+              const newProgress = { ...prev };
+              delete newProgress[fileId];
+              return newProgress;
+            });
+          }, 1000);
+          
+        } catch (error) {
+          setUploadProgress(prev => {
+            const newProgress = { ...prev };
+            delete newProgress[fileId];
+            return newProgress;
+          });
+        }
       } else {
         toast({
           title: "Unsupported file type",
-          description: "Please upload .txt files only",
+          description: `Please upload .txt files only. "${file.name}" is not supported.`,
           variant: "destructive",
         });
       }
     }
-  };
+  }, [uploadMutation, toast]);
 
   const handleManualAdd = () => {
     if (!newSample.originalName || !newSample.content) {
@@ -183,25 +232,50 @@ export default function WritingRepository() {
     });
   };
 
+  const filteredAndSortedSamples = writingSamples
+    ?.filter(sample => {
+      const matchesSearch = sample.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          sample.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          sample.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesFilter = filterBy === "all" || 
+                          (filterBy === "analyzed" && sample.isAnalyzed) ||
+                          (filterBy === "unanalyzed" && !sample.isAnalyzed);
+      
+      return matchesSearch && matchesFilter;
+    })
+    ?.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.originalName.localeCompare(b.originalName);
+        case "size":
+          return b.fileSize - a.fileSize;
+        case "date":
+        default:
+          return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+      }
+    });
+
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Writing Repository
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Upload your past work to help AI understand your writing style and voice
-          </p>
-        </div>
+      <div className="flex flex-col space-y-6 mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Writing Repository
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
+              Upload your past work to help AI understand your writing style and voice
+            </p>
+          </div>
 
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Writing Sample
-            </Button>
-          </DialogTrigger>
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Writing Sample
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add Writing Sample</DialogTitle>
@@ -258,6 +332,50 @@ export default function WritingRepository() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
+
+        {/* Search and Filter Controls */}
+        {writingSamples && writingSamples.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-3 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search writing samples..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <select
+                  value={filterBy}
+                  onChange={(e) => setFilterBy(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Samples</option>
+                  <option value="analyzed">Analyzed</option>
+                  <option value="unanalyzed">Not Analyzed</option>
+                </select>
+                
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="date">Sort by Date</option>
+                  <option value="name">Sort by Name</option>
+                  <option value="size">Sort by Size</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              {filteredAndSortedSamples?.length || 0} of {writingSamples?.length || 0} samples
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Upload Area */}
@@ -297,6 +415,20 @@ export default function WritingRepository() {
             <p className="text-sm text-gray-500 mt-2">
               Supported formats: .txt files only
             </p>
+            
+            {/* Upload Progress */}
+            {Object.keys(uploadProgress).length > 0 && (
+              <div className="mt-4 space-y-2">
+                {Object.entries(uploadProgress).map(([fileId, progress]) => (
+                  <div key={fileId} className="flex items-center space-x-3">
+                    <div className="flex-1">
+                      <Progress value={progress} className="h-2" />
+                    </div>
+                    <span className="text-sm text-gray-500 min-w-12">{progress}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -305,27 +437,37 @@ export default function WritingRepository() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i}>
               <CardHeader>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="space-y-3">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-5/6" />
+                  <Skeleton className="h-3 w-4/6" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-5 w-16" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-      ) : writingSamples?.length === 0 ? (
+      ) : !filteredAndSortedSamples || filteredAndSortedSamples.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-medium mb-2">No writing samples yet</h3>
+            <h3 className="text-lg font-medium mb-2">
+              {writingSamples?.length === 0 ? "No writing samples yet" : "No samples match your search"}
+            </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Upload your past essays and writing to help AI understand your unique style
+              {writingSamples?.length === 0 
+                ? "Upload your past essays and writing to help AI understand your unique style"
+                : "Try adjusting your search terms or filters to find samples"
+              }
             </p>
             <Button onClick={() => fileInputRef.current?.click()}>
               Upload Your First Sample
@@ -334,7 +476,7 @@ export default function WritingRepository() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {writingSamples?.map((sample) => (
+          {filteredAndSortedSamples?.map((sample) => (
             <Card key={sample.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -347,14 +489,29 @@ export default function WritingRepository() {
                       {formatDate(sample.uploadedAt)}
                     </CardDescription>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteMutation.mutate(sample.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(sample.content);
+                        toast({
+                          title: "Copied to clipboard",
+                          description: "Writing sample content copied",
+                        });
+                      }}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteMutation.mutate(sample.id)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -392,12 +549,23 @@ export default function WritingRepository() {
                     </p>
                   )}
 
-                  {sample.isAnalyzed && (
-                    <Badge variant="default" className="text-xs">
-                      <FileCheck className="w-2 h-2 mr-1" />
-                      Style Analyzed
-                    </Badge>
-                  )}
+                  <div className="flex items-center justify-between">
+                    {sample.isAnalyzed ? (
+                      <Badge variant="default" className="text-xs">
+                        <CheckCircle2 className="w-2 h-2 mr-1" />
+                        Style Analyzed
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">
+                        <AlertCircle className="w-2 h-2 mr-1" />
+                        Pending Analysis
+                      </Badge>
+                    )}
+                    
+                    <div className="text-xs text-gray-400">
+                      {sample.content.split(' ').length} words
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

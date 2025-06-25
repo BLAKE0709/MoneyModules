@@ -124,4 +124,5 @@ Changelog:
 
 ```
 Preferred communication style: Simple, everyday language.
+UX Focus: User loves excellent UX and wants suggestions for improvements.
 ```

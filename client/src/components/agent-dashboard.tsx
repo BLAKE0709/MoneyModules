@@ -39,20 +39,25 @@ export default function AgentDashboard() {
 
   const { data: dashboardData, isLoading } = useQuery<AgentDashboardData>({
     queryKey: ["/api/agents/dashboard"],
+    retry: (failureCount, error: any) => {
+      // Don't retry on 4xx errors (client errors)
+      if (error?.status >= 400 && error?.status < 500) {
+        return false;
+      }
+      // Retry up to 3 times for other errors
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const runPersonaAnalysis = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/agents/persona/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          activity: {
-            type: 'manual_analysis',
-            description: 'User requested persona analysis',
-            metadata: { timestamp: new Date().toISOString() }
-          }
-        }),
+      return await apiRequest('POST', '/api/agents/persona/analyze', {
+        activity: {
+          type: 'manual_analysis',
+          description: 'User requested persona analysis',
+          metadata: { timestamp: new Date().toISOString() }
+        }
       });
     },
     onSuccess: () => {
@@ -66,13 +71,13 @@ export default function AgentDashboard() {
 
   const discoverScholarships = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/agents/scholarships/discover');
+      return await apiRequest('GET', '/api/agents/scholarships/discover');
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/agents/dashboard'] });
       toast({
         title: "Scholarship Discovery Complete",
-        description: `Found ${data.data?.opportunities?.length || 0} personalized opportunities`,
+        description: `Found ${data?.data?.opportunities?.length || 0} personalized opportunities`,
       });
     },
   });

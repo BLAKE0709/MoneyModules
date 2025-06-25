@@ -17,21 +17,17 @@ export default function ScholarshipScoutDemo() {
 
   const { data: matches = [], isLoading, refetch, error } = useQuery({
     queryKey: ['/api/scholarships/matches'],
-    enabled: !!(user as any)?.id,
-    retry: (failureCount, error: any) => {
-      // Don't retry on 4xx errors (client errors)
-      if (error?.status >= 400 && error?.status < 500) {
-        return false;
-      }
-      // Retry up to 3 times for other errors
-      return failureCount < 3;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: false, // Disable automatic fetching
+    retry: false, // Completely disable retries
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const refreshMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/scholarships/matches?force=true', 'GET');
+      const response = await apiRequest('GET', '/api/scholarships/matches?force=true');
       return response;
     },
     onSuccess: () => {

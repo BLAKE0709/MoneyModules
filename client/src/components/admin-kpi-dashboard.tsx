@@ -16,7 +16,16 @@ import {
 export default function AdminKPIDashboard() {
   const { data: healthMetrics } = useQuery({
     queryKey: ['/api/health'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    retry: (failureCount, error: any) => {
+      // Don't retry on 4xx errors (client errors)
+      if (error?.status >= 400 && error?.status < 500) {
+        return false;
+      }
+      // Retry up to 3 times for other errors
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: false, // Disable automatic polling
   });
 
   const { data: activities = [] } = useQuery({

@@ -72,15 +72,12 @@ export default function Dashboard() {
 
   const { data: scholarshipMatches, isLoading: scholarshipsLoading } = useQuery({
     queryKey: ["/api/scholarships/matches"],
-    retry: (failureCount, error: any) => {
-      // Don't retry on 4xx errors (client errors)
-      if (error?.status >= 400 && error?.status < 500) {
-        return false;
-      }
-      // Retry up to 3 times for other errors
-      return failureCount < 3;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: false, // Disable automatic fetching to stop infinite loops
+    retry: false,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const { data: persona, isLoading: personaLoading } = useQuery({
@@ -103,10 +100,10 @@ export default function Dashboard() {
     );
   }
 
-  const completionPercentage = persona?.completionPercentage || 0;
-  const essayCount = essays?.length || 0;
-  const scholarshipCount = scholarshipMatches?.length || 0;
-  const recentActivities = activities?.slice(0, 3) || [];
+  const completionPercentage = (persona as any)?.completionPercentage || 0;
+  const essayCount = Array.isArray(essays) ? essays.length : 0;
+  const scholarshipCount = Array.isArray(scholarshipMatches) ? scholarshipMatches.length : 0;
+  const recentActivities = Array.isArray(activities) ? activities.slice(0, 3) : [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -121,7 +118,7 @@ export default function Dashboard() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-neutral-800 mb-2">
-                  Welcome back, {user?.firstName || "Student"}!
+                  Welcome back, {(user as any)?.firstName || "Student"}!
                 </h2>
                 <p className="text-neutral-600 font-source">
                   PersonaLearning, EssayPolish Pro, and ScholarshipScout agents are active

@@ -24,8 +24,12 @@ function Router() {
   // Get deadline alerts for mobile notifications
   const { data: deadlineAlerts = [] } = useQuery({
     queryKey: ['/api/scholarships/deadline-alerts'],
-    enabled: isAuthenticated,
+    enabled: false, // Disable to stop API calls causing issues
     retry: false,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
   
   // Count upcoming deadlines for navigation badge

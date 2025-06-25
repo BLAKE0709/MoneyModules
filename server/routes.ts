@@ -506,6 +506,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Usage Portfolio routes
+  app.post('/api/ai-usage/import', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { chatGPTData } = req.body;
+
+      if (!chatGPTData) {
+        return res.status(400).json({ message: "ChatGPT data required" });
+      }
+
+      const { aiUsageTracker } = await import('./services/ai-usage-tracker');
+      const ledger = await aiUsageTracker.processChatGPTExport(userId, chatGPTData);
+
+      res.json({
+        message: "AI usage data processed successfully",
+        ledger,
+        portfolioUrl: `/api/ai-usage/portfolio/${userId}`
+      });
+    } catch (error) {
+      console.error("Error processing ChatGPT data:", error);
+      res.status(500).json({ message: "Failed to process AI usage data" });
+    }
+  });
+
+  app.get('/api/ai-usage/portfolio/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const requestedUserId = req.params.userId;
+
+      // Users can only access their own portfolio unless admin
+      if (userId !== requestedUserId && req.user.claims.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // For now, return mock data structure - in production this would be stored
+      const mockLedger = {
+        userId: requestedUserId,
+        totalInteractions: 0,
+        skillCategories: [],
+        professionalReadiness: { score: 0, strengths: [], recommendations: [] },
+        portfolioHighlights: { bestExamples: [], uniqueApproaches: [], problemSolvingEvidence: [] },
+        generatedAt: new Date()
+      };
+
+      res.json(mockLedger);
+    } catch (error) {
+      console.error("Error fetching AI usage portfolio:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio" });
+    }
+  });
+
+  app.get('/api/ai-usage/document/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const requestedUserId = req.params.userId;
+
+      if (userId !== requestedUserId && req.user.claims.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { aiUsageTracker } = await import('./services/ai-usage-tracker');
+      const mockLedger = {
+        userId: requestedUserId,
+        totalInteractions: 0,
+        skillCategories: [],
+        professionalReadiness: { score: 0, strengths: [], recommendations: [] },
+        portfolioHighlights: { bestExamples: [], uniqueApproaches: [], problemSolvingEvidence: [] },
+        generatedAt: new Date()
+      };
+
+      const document = await aiUsageTracker.generatePortfolioDocument(mockLedger);
+
+      res.setHeader('Content-Type', 'text/markdown');
+      res.setHeader('Content-Disposition', 'attachment; filename="AI-Proficiency-Portfolio.md"');
+      res.send(document);
+    } catch (error) {
+      console.error("Error generating portfolio document:", error);
+      res.status(500).json({ message: "Failed to generate portfolio document" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

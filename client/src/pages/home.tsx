@@ -8,6 +8,7 @@ import WritingRepository from "@/pages/writing-repository";
 import Persona from "@/pages/persona";
 import Admin from "@/pages/admin";
 import EnhancedNavigation from "@/components/enhanced-navigation";
+import AIPortfolio from "@/pages/ai-portfolio";
 
 export default function Home() {
   const { user } = useAuth();

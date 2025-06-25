@@ -32,6 +32,12 @@ export default function EnhancedNavigation({ activeTab, onTabChange }: EnhancedN
       label: 'My Profile', 
       icon: '👤',
       agent: { name: 'PersonaLearning', icon: Brain, active: true }
+    },
+    { 
+      id: 'ai-portfolio', 
+      label: 'AI Portfolio', 
+      icon: '🤖',
+      agent: { name: 'AI Proficiency', icon: Bot, active: true }
     }
   ];
 

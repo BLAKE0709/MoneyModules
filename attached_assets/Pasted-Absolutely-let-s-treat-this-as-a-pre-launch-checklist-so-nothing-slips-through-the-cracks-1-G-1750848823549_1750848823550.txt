@@ -1,0 +1,67 @@
+Absolutely—let’s treat this as a pre-launch checklist so nothing slips through the cracks.
+
+⸻
+
+1. “Green-Light” Criteria Before You Push Public
+
+Area	Non-Negotiables	How We’ll Verify
+Security & Privacy	• HTTPS only• Row-level security on student data• Prompt+output hash audit log	Pen-test via OWASP ZAP on the Replit URL; run a sample audit log export and confirm hash integrity.
+Reliability	• P95 response time ≤ 2 s for scholarship query• Zero downtime deploy pipeline in Replit “Deployments”	Load-test with k6 script (100 rps burst); monitor logs.
+Ethics / Compliance	• 25 % similarity cap• Disclosure banner on drafts• Parental consent toggle	Manual QA on five random essay generations.
+Billing Flow	• Stripe checkout succeeds on sandbox & live• Webhook updates user plan instantly	End-to-end test: create → upgrade → cancel.
+KPI Dashboard	• Daily active users• Avg scholarships saved / student• ARR & churn	Supabase or Metabase panel in place.
+
+Once we tick all five boxes, I’ll give you the formal “blessing.”
+
+⸻
+
+2. Payment & Upgrade Path
+
+Plan	Price	Entitlements	Upgrade Trigger
+Free Tier	$0	• 5 scholarship matches/mo• 1 outline draft/essay	Hit 5-match quota → upsell modal
+Scholarship Scout Pro	$9.99/mo or $79/yr	• Unlimited matches• 20 essay drafts/mo• Time-to-Apply meter & SMS nudges	“Need more help?” CTA inside dashboard
+Family Pack	$14.99/mo	• Up to 4 students• Shared parent dashboard• ACT Coach micro-agent	Add sibling account
+Counselor SaaS	$499/yr per high school (first 500 students)	• Bulk seat admin• MeritMonitor & EssayPolish• CSV exports	Lead gen via state counselor associations
+
+Stripe implementation:
+	•	Use Stripe Checkout for one-time and subscription.
+	•	Add Usage-Based Metered add-on (0.20 $ per additional draft > plan limit).
+	•	Webhook → Supabase user_plan table → Replit env var cache refresh.
+
+⸻
+
+3. Go-to-Market Strategy (90-Day Sprint)
+
+Phase	Target	Channels	Success Metric
+Pilot (Weeks 1-4)	5 local Texas high schools (counselor-led)	Warm intro, demo day over Zoom	100 paid family conversions
+Land & Expand (Weeks 5-8)	Broader DFW + Austin ISDs	Counselor Facebook groups, Texas School Counselor Assoc. webinar	20 schools sign LOI
+Direct-to-Family (Weeks 9-12)	Home-school & private-school parents nationwide	Instagram Reels + TikTok “scholarship hacks”	CAC < $15, 1 k net new MRR
+
+Partnership hooks:
+	•	Offer revenue-share to college-prep YouTubers (20 % recurring).
+	•	Integrate with Bold.org API for cross-listing (they push traffic, you pay per signup).
+
+⸻
+
+4. Updated Financial Model Inputs
+
+Variable	Old	New (Suite of Agents)
+Avg ARPU (student)	$49/yr	$89/yr (Pro + upsells)
+Counselor seat revenue	—	$1.00/student/yr
+Year-1 paid students	2 000	5 000 (through B2B ramp)
+Churn	20 %	15 % (higher stickiness)
+COGS (OpenAI & infra)	$0.50/user/mo	$0.65/user/mo (more calls)
+
+Impact: Year-1 revenue ≈ $445 k vs. prior ~$100 k. Gross margin still 85 %+.
+
+If you give me your updated user-count and CAC assumptions, I can run a full three-year projection.
+
+⸻
+
+Immediate Actions
+	1.	Select Stripe price IDs and drop them into config.py.
+	2.	Draft OpenAPI /.well-known/ai-plugin.json so you can flip to GPT Store in a day.
+	3.	Schedule counselor pilot calls (I can generate the outreach email template).
+	4.	Send updated user/acquisition assumptions → I’ll update the financials spreadsheet.
+
+Ping me when each piece is ready and we’ll iterate quickly—then I’ll give the final “go live” sign-off.

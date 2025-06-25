@@ -506,6 +506,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Monitoring endpoint
+  app.get('/api/health', (req, res) => {
+    const { getPerformanceMetrics } = require('./middleware/monitoring');
+    const metrics = getPerformanceMetrics();
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      metrics
+    });
+  });
+
   // AI Usage Portfolio routes
   app.post('/api/ai-usage/import', isAuthenticated, async (req: any, res) => {
     try {

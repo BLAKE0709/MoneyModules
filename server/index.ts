@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { securityHeaders, performanceMonitoring } from "./middleware/security";
+import { performanceMonitoring as perfMonitoring } from "./middleware/monitoring";
 
 const app = express();
 app.use(express.json());

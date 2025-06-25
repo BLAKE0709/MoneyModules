@@ -113,11 +113,29 @@ StudentOS is a comprehensive AI-powered educational platform that combines stude
 - **Sessions**: Secure session configuration with HTTP-only cookies
 - **API Keys**: Environment-based configuration for OpenAI integration
 
-## Changelog
+## Recent Changes
 
 ```
-Changelog:
-- June 24, 2025. Initial setup
+Recent Updates:
+- June 25, 2025: Major UX enhancements implemented
+  * Enhanced Essay cards with hover effects and quick actions
+  * Real-time search and filtering across all content
+  * Bulk operations for essays and writing samples
+  * Auto-save functionality with visual indicators
+  * Keyboard shortcuts (⌘K search, ⌘N new essay, ⌘U upload)
+  * Writing style visualization with radar charts
+  * Upload progress bars and improved error handling
+  * Enhanced toast notifications with action buttons
+  * Skeleton loading states for better perceived performance
+  * Mobile-responsive design improvements
+
+- June 24, 2025: Initial StudentOS platform setup
+  * Core authentication with Replit Auth
+  * Database schema with Drizzle ORM
+  * Essay management and AI analysis
+  * Writing Repository with drag-and-drop uploads
+  * Student persona management
+  * B2B school administration features
 ```
 
 ## User Preferences

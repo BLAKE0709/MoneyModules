@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import AppHeader from "@/components/app-header";
 import MobileMenu from "@/components/mobile-menu";
 import Dashboard from "@/pages/dashboard";
-import Essays from "@/pages/essays";
+import EnhancedEssaysPage from "@/components/enhanced-essays-page";
 import WritingRepository from "@/pages/writing-repository";
 import Persona from "@/pages/persona";
 import Admin from "@/pages/admin";
@@ -17,7 +17,7 @@ export default function Home() {
       case "dashboard":
         return <Dashboard />;
       case "essays":
-        return <Essays />;
+        return <EnhancedEssaysPage />;
       case "writing-repository":
         return <WritingRepository />;
       case "persona":

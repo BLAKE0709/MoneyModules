@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import KeyboardShortcuts from "@/components/keyboard-shortcuts";
 import BulkActions from "@/components/bulk-actions";
 import WritingStyleVisualization from "@/components/writing-style-visualization";
@@ -32,6 +31,14 @@ import {
   BarChart3,
   Target
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import type { WritingSample } from "@shared/schema";
 
 export default function WritingRepository() {
@@ -59,23 +66,23 @@ export default function WritingRepository() {
 
   const uploadMutation = useMutation({
     mutationFn: async (sampleData: any) => {
-      const response = await apiRequest('/api/writing-samples', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      return await apiRequest("/api/writing-samples", {
+        method: "POST",
         body: JSON.stringify(sampleData),
       });
-      return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/writing-samples'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/writing-samples"] });
       toast({
-        title: "Writing sample uploaded",
-        description: "Your writing sample has been saved successfully",
+        title: "Success",
+        description: "Writing sample uploaded successfully",
       });
+      setShowAddDialog(false);
+      setNewSample({ originalName: "", content: "", notes: "", tags: "" });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        title: "Upload failed",
+        title: "Error",
         description: "Failed to upload writing sample",
         variant: "destructive",
       });
@@ -84,20 +91,20 @@ export default function WritingRepository() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/writing-samples/${id}`, {
-        method: 'DELETE',
+      return await apiRequest(`/api/writing-samples/${id}`, {
+        method: "DELETE",
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/writing-samples'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/writing-samples"] });
       toast({
-        title: "Sample deleted",
-        description: "Writing sample has been removed",
+        title: "Success",
+        description: "Writing sample deleted successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        title: "Delete failed",
+        title: "Error",
         description: "Failed to delete writing sample",
         variant: "destructive",
       });
@@ -118,21 +125,23 @@ export default function WritingRepository() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const files = Array.from(e.dataTransfer.files);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
       handleFiles(files);
     }
   };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
       handleFiles(files);
     }
   };
 
   const handleFiles = useCallback(async (files: File[]) => {
+    const supportedTypes = ["text/plain", ".txt", ".doc", ".docx"];
+    
     for (const file of files) {
       const fileId = Math.random().toString(36).substr(2, 9);
       
@@ -140,6 +149,7 @@ export default function WritingRepository() {
         setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
         
         try {
+          // Simulate upload progress for better UX
           const progressInterval = setInterval(() => {
             setUploadProgress(prev => {
               const current = prev[fileId] || 0;
@@ -194,33 +204,29 @@ export default function WritingRepository() {
     if (!newSample.originalName || !newSample.content) {
       toast({
         title: "Missing information",
-        description: "Please provide both title and content",
+        description: "Please provide both a title and content",
         variant: "destructive",
       });
       return;
     }
 
     const sampleData = {
-      filename: `${newSample.originalName}.txt`,
+      filename: newSample.originalName.toLowerCase().replace(/\s+/g, "-") + ".txt",
       originalName: newSample.originalName,
       content: newSample.content,
       fileType: "txt",
       fileSize: new Blob([newSample.content]).size,
-      tags: newSample.tags ? newSample.tags.split(',').map(t => t.trim()) : [],
+      tags: newSample.tags ? newSample.tags.split(",").map(tag => tag.trim()) : [],
       notes: newSample.notes,
     };
 
     uploadMutation.mutate(sampleData);
-    if (!uploadMutation.isPending) {
-      setShowAddDialog(false);
-      setNewSample({ originalName: "", content: "", notes: "", tags: "" });
-    }
   };
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -281,6 +287,7 @@ export default function WritingRepository() {
     URL.revokeObjectURL(url);
   }, [writingSamples]);
 
+  // Mock writing analysis data - in real app this would come from AI analysis
   const mockAnalysis = {
     complexity: 7.2,
     vocabulary: 8.1,
@@ -313,7 +320,6 @@ export default function WritingRepository() {
           searchInput?.focus();
         }}
       />
-      
       <div className="flex flex-col space-y-6 mb-8">
         <div className="flex items-center justify-between">
           <div>
@@ -344,64 +350,64 @@ export default function WritingRepository() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add Writing Sample</DialogTitle>
-                  <DialogDescription>
-                    Manually add a writing sample by typing or pasting content
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={newSample.originalName}
-                      onChange={(e) => setNewSample({ ...newSample, originalName: e.target.value })}
-                      placeholder="e.g., College Application Essay"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="content">Content</Label>
-                    <Textarea
-                      id="content"
-                      value={newSample.content}
-                      onChange={(e) => setNewSample({ ...newSample, content: e.target.value })}
-                      placeholder="Paste or type your writing sample here..."
-                      className="min-h-32"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tags">Tags (optional)</Label>
-                    <Input
-                      id="tags"
-                      value={newSample.tags}
-                      onChange={(e) => setNewSample({ ...newSample, tags: e.target.value })}
-                      placeholder="e.g., personal statement, college, creative writing"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="notes">Notes (optional)</Label>
-                    <Textarea
-                      id="notes"
-                      value={newSample.notes}
-                      onChange={(e) => setNewSample({ ...newSample, notes: e.target.value })}
-                      placeholder="Any additional notes about this writing sample..."
-                    />
-                  </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleManualAdd} disabled={uploadMutation.isPending}>
-                      {uploadMutation.isPending ? "Adding..." : "Add Sample"}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <DialogHeader>
+              <DialogTitle>Add Writing Sample</DialogTitle>
+              <DialogDescription>
+                Manually add a writing sample by typing or pasting content
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={newSample.originalName}
+                  onChange={(e) => setNewSample({ ...newSample, originalName: e.target.value })}
+                  placeholder="e.g., College Application Essay"
+                />
+              </div>
+              <div>
+                <Label htmlFor="content">Content</Label>
+                <Textarea
+                  id="content"
+                  value={newSample.content}
+                  onChange={(e) => setNewSample({ ...newSample, content: e.target.value })}
+                  placeholder="Paste your writing sample here..."
+                  className="min-h-48"
+                />
+              </div>
+              <div>
+                <Label htmlFor="tags">Tags (comma-separated)</Label>
+                <Input
+                  id="tags"
+                  value={newSample.tags}
+                  onChange={(e) => setNewSample({ ...newSample, tags: e.target.value })}
+                  placeholder="e.g., essay, creative writing, personal statement"
+                />
+              </div>
+              <div>
+                <Label htmlFor="notes">Notes (optional)</Label>
+                <Textarea
+                  id="notes"
+                  value={newSample.notes}
+                  onChange={(e) => setNewSample({ ...newSample, notes: e.target.value })}
+                  placeholder="Any additional notes about this writing sample..."
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleManualAdd} disabled={uploadMutation.isPending}>
+                  {uploadMutation.isPending ? "Adding..." : "Add Sample"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
           </div>
-        </div>
 
+        {/* Search and Filter Controls */}
         {writingSamples && writingSamples.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-3 flex-1">
@@ -444,6 +450,7 @@ export default function WritingRepository() {
           </div>
         )}
 
+        {/* Bulk Actions */}
         {writingSamples && writingSamples.length > 0 && (
           <BulkActions
             items={filteredAndSortedSamples || []}
@@ -455,6 +462,7 @@ export default function WritingRepository() {
         )}
       </div>
 
+      {/* Writing Style Analysis */}
       {showAnalysis && writingSamples && writingSamples.length >= 3 && (
         <div className="mb-8">
           <WritingStyleVisualization
@@ -466,6 +474,7 @@ export default function WritingRepository() {
         </div>
       )}
 
+      {/* Upload Area */}
       <Card className="mb-8">
         <CardContent className="p-8">
           <div
@@ -479,24 +488,22 @@ export default function WritingRepository() {
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
+            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-lg font-medium mb-2">Upload Writing Samples</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Drag and drop your .txt files here, or click to browse
+            </p>
             <input
               ref={fileInputRef}
               type="file"
               multiple
               accept=".txt"
-              onChange={handleFileInputChange}
+              onChange={handleFileSelect}
               className="hidden"
             />
-            
-            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-medium mb-2">
-              Drop your writing samples here
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              or click to browse files from your computer
-            </p>
             <Button
               onClick={() => fileInputRef.current?.click()}
+              variant="outline"
               disabled={uploadMutation.isPending}
             >
               {uploadMutation.isPending ? "Uploading..." : "Choose Files"}
@@ -505,6 +512,7 @@ export default function WritingRepository() {
               Supported formats: .txt files only
             </p>
             
+            {/* Upload Progress */}
             {Object.keys(uploadProgress).length > 0 && (
               <div className="mt-4 space-y-2">
                 {Object.entries(uploadProgress).map(([fileId, progress]) => (
@@ -521,6 +529,7 @@ export default function WritingRepository() {
         </CardContent>
       </Card>
 
+      {/* Writing Samples Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
@@ -567,11 +576,11 @@ export default function WritingRepository() {
             <Card key={sample.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg leading-6 truncate pr-2">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg line-clamp-2">
                       {sample.originalName}
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-1">
+                    <CardDescription className="flex items-center gap-2 mt-2">
                       <Calendar className="w-3 h-3" />
                       {formatDate(sample.uploadedAt)}
                     </CardDescription>
@@ -603,23 +612,32 @@ export default function WritingRepository() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600 line-clamp-3">
-                    {sample.content}
+                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+                    {sample.content.substring(0, 150)}...
                   </p>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      <FileText className="w-2 h-2 mr-1" />
-                      {formatFileSize(sample.fileSize)}
-                    </Badge>
-                    {sample.tags && sample.tags.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Tag className="w-2 h-2 mr-1" />
-                        {sample.tags[0]}
-                        {sample.tags.length > 1 && ` +${sample.tags.length - 1}`}
-                      </Badge>
-                    )}
+                  
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <FileCheck className="w-3 h-3" />
+                    {sample.fileType.toUpperCase()}
+                    <span>•</span>
+                    {formatFileSize(sample.fileSize)}
                   </div>
+
+                  {sample.tags && sample.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {sample.tags.slice(0, 3).map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          <Tag className="w-2 h-2 mr-1" />
+                          {tag}
+                        </Badge>
+                      ))}
+                      {sample.tags.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{sample.tags.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                  )}
 
                   {sample.notes && (
                     <p className="text-xs text-gray-500 italic line-clamp-2">

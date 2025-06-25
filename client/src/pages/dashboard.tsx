@@ -5,7 +5,57 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
+  const { toast } = useToast();
   const { user } = useAuth();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  // Mock smart suggestions data
+  const mockSuggestions = [
+    {
+      id: "1",
+      type: "essay_match" as const,
+      title: "Perfect writing sample found",
+      description: "Your 'Summer Internship' essay matches well with your college application prompt. Consider using it as style reference.",
+      actionLabel: "View Match",
+      priority: "high" as const,
+      relevantEssay: "College Application Essay",
+      relevantSample: "Summer Internship Experience"
+    },
+    {
+      id: "2", 
+      type: "improvement_tip" as const,
+      title: "Strengthen your conclusions",
+      description: "Your essays tend to have weaker ending paragraphs. Here are some techniques to create more impactful conclusions.",
+      actionLabel: "Learn More",
+      priority: "medium" as const,
+    },
+    {
+      id: "3",
+      type: "deadline_reminder" as const,
+      title: "Application deadline approaching",
+      description: "Your Stanford application essay is due in 5 days. Make sure to review and submit before the deadline.",
+      actionLabel: "Review Essay",
+      priority: "high" as const,
+      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      relevantEssay: "Stanford Application Essay"
+    }
+  ];
+
+  const handleSuggestionAction = (suggestionId: string) => {
+    const suggestion = mockSuggestions.find(s => s.id === suggestionId);
+    if (suggestion) {
+      toast({
+        title: "Action taken",
+        description: `Opening ${suggestion.actionLabel.toLowerCase()}...`,
+      });
+    }
+  };
   
   const { data: activities, isLoading: activitiesLoading } = useQuery({
     queryKey: ["/api/activities"],

@@ -19,6 +19,8 @@ import MobileNavigation from "./components/mobile-navigation";
 import ParentDashboard from "./components/parent-dashboard";
 import PrePopulatedApplications from "./components/pre-populated-applications";
 import UniversityIntegrationDashboard from "./components/university-integration-dashboard";
+import AIUsageDemo from "./components/ai-usage-demo";
+import ScholarshipScoutDemo from "./components/scholarship-scout-demo";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -54,11 +56,14 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/essays" component={Essays} />
+            <Route path="/essays/new" component={() => <Essays />} />
             <Route path="/writing-repository" component={WritingRepository} />
             <Route path="/agents" component={AgentDashboard} />
             <Route path="/integrations" component={PlatformIntegrationDashboard} />
             <Route path="/applications" component={PrePopulatedApplications} />
             <Route path="/university-integrations" component={UniversityIntegrationDashboard} />
+            <Route path="/ai-portfolio" component={AIUsageDemo} />
+            <Route path="/scholarships" component={ScholarshipScoutDemo} />
             <Route path="/persona" component={Persona} />
             <Route path="/admin" component={Admin} />
             <Route 

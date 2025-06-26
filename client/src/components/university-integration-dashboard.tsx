@@ -90,13 +90,13 @@ export default function UniversityIntegrationDashboard() {
     );
   }
 
-  const status = integrationData?.data?.status as IntegrationStatus || {
+  const status: IntegrationStatus = integrationData?.data?.status || {
     totalIntegrations: 8,
     activeIntegrations: 6,
     avgSuccessRate: 94.2,
     integrationsByType: { api: 3, agent: 4, scraper: 1 }
   };
-  const evolution = integrationData?.data?.evolution as IntegrationEvolution || {
+  const evolution: IntegrationEvolution = integrationData?.data?.evolution || {
     currentState: "Multi-Channel Integration Active",
     nextMilestone: "Patent Filing Complete",
     timeToNextMilestone: "2 weeks",

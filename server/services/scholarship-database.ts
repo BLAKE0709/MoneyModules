@@ -450,19 +450,13 @@ export async function seedScholarshipDatabase(): Promise<void> {
   for (const scholarshipData of LIVE_SCHOLARSHIP_DATABASE) {
     try {
       const scholarshipRecord: InsertScholarship = {
-        title: scholarshipData.title,
+        name: scholarshipData.title, // Map title to name field
         provider: scholarshipData.provider,
         amount: scholarshipData.amount,
         deadline: new Date(scholarshipData.deadline),
         description: scholarshipData.description,
-        requirements: scholarshipData.requirements,
-        eligibilityCriteria: JSON.stringify(scholarshipData.eligibility),
-        applicationUrl: scholarshipData.applicationUrl,
-        tags: scholarshipData.tags,
-        isActive: true,
-        competitiveness: scholarshipData.competitiveness,
-        estimatedApplicants: scholarshipData.estimatedApplicants,
-        isRecurring: scholarshipData.isRecurring
+        requirements: JSON.stringify(scholarshipData.requirements),
+        eligibilityCriteria: scholarshipData.eligibility
       };
 
       await storage.createScholarship(scholarshipRecord);

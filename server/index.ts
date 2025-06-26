@@ -41,6 +41,15 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Seed scholarship database on startup
+  try {
+    const { seedScholarshipDatabase } = await import('./services/scholarship-database');
+    await seedScholarshipDatabase();
+    log('Scholarship database seeded successfully');
+  } catch (error) {
+    console.error('Failed to seed scholarship database:', error);
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

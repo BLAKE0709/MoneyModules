@@ -339,6 +339,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Scholarship routes
   app.get('/api/scholarships', isAuthenticated, async (req: any, res) => {
     try {
+      // Ensure scholarship database is seeded
+      const { seedScholarshipDatabase } = await import('./services/scholarship-database');
+      await seedScholarshipDatabase();
+      
       const scholarships = await storage.getScholarships();
       res.json(scholarships);
     } catch (error) {

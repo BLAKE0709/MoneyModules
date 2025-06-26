@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Target, Clock, DollarSign, Users, ExternalLink } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Target, Clock, DollarSign, Users, ExternalLink, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import IntelligentScholarshipDiscovery from "./intelligent-scholarship-discovery";
 
 export default function ScholarshipScoutDemo() {
   const { data: scholarships, isLoading } = useQuery({
@@ -39,9 +41,23 @@ export default function ScholarshipScoutDemo() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Scholarship Discovery</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          AI-powered scholarship matching based on your profile. Find opportunities worth thousands of dollars.
+          AI-powered scholarship matching and hidden opportunity discovery based on your unique profile.
         </p>
       </div>
+
+      <Tabs defaultValue="database" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsTrigger value="database" className="flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Public Database ({scholarshipList.length} scholarships)
+          </TabsTrigger>
+          <TabsTrigger value="intelligence" className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            Hidden Opportunities
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="database" className="space-y-6">
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -160,6 +176,12 @@ export default function ScholarshipScoutDemo() {
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+
+        <TabsContent value="intelligence">
+          <IntelligentScholarshipDiscovery />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -2,8 +2,40 @@ import { Express, Request, Response } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { scholarshipApplicationGenerator } from '../services/scholarship-application-generator';
 import { storage } from '../storage';
+import { intelligentScout } from '../services/intelligent-scholarship-scout';
 
 export function registerScholarshipApplicationRoutes(app: Express) {
+  
+  // Intelligent scholarship discovery - find hidden opportunities
+  app.get('/api/scholarships/intelligent-discovery', isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const persona = await storage.getStudentPersona(userId);
+      
+      if (!persona) {
+        return res.status(400).json({ 
+          message: "Complete your student profile to discover hidden scholarship opportunities",
+          action: "complete_profile"
+        });
+      }
+
+      const hiddenMatches = await intelligentScout.discoverHiddenOpportunities(persona);
+      const intelligenceReport = intelligentScout.generateIntelligenceReport(hiddenMatches);
+
+      res.json({
+        success: true,
+        data: {
+          hiddenMatches,
+          intelligenceReport,
+          discoveryCount: hiddenMatches.length,
+          estimatedValue: intelligenceReport.totalHiddenValue
+        }
+      });
+    } catch (error) {
+      console.error('Intelligent discovery error:', error);
+      res.status(500).json({ message: 'Failed to discover hidden opportunities' });
+    }
+  });
   
   // Generate pre-populated application for a specific scholarship
   app.post('/api/scholarships/:scholarshipId/generate-application', isAuthenticated, async (req: any, res: Response) => {

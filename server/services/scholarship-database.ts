@@ -198,52 +198,156 @@ export const LIVE_SCHOLARSHIP_DATABASE: RealScholarshipData[] = [
 
   // Regional & Local Scholarships (Less Competitive)
   {
-    id: "california-community-foundation-2025",
-    title: "California Community Foundation Scholarships",
-    provider: "California Community Foundation",
-    amount: 5000,
-    deadline: "2025-03-02",
-    description: "Multiple scholarships for students from greater Los Angeles area.",
+    id: "coca-cola-scholars-2025",
+    title: "Coca-Cola Scholars Program",
+    provider: "The Coca-Cola Foundation",
+    amount: 20000,
+    deadline: "2024-10-31",
+    description: "Merit-based scholarship recognizing outstanding high school seniors who demonstrate leadership and excellence.",
     requirements: [
-      "Resident of Los Angeles County",
-      "High school senior or college student",
-      "Demonstrated financial need",
-      "Various GPA requirements by specific scholarship"
+      "High school senior in good standing",
+      "Minimum 3.0 GPA",
+      "Demonstrated leadership in school and community",
+      "Plan to pursue post-secondary education"
     ],
-    applicationUrl: "https://calfund.org/scholarships/",
+    applicationUrl: "https://www.coca-colascholarsfoundation.org/apply/",
     eligibility: {
-      location: ["Los Angeles County", "California"],
-      income: { max: 75000 }
+      gpaMin: 3.0,
+      gradeLevel: ["12"],
+      demographics: ["any"]
     },
-    competitiveness: "low",
-    estimatedApplicants: 1200,
-    tags: ["local", "need-based", "California", "community"],
-    isLocal: true,
+    competitiveness: "extremely_high",
+    estimatedApplicants: 95000,
+    tags: ["merit", "leadership", "national"],
+    isLocal: false,
     isRecurring: true
   },
   {
-    id: "dallas-foundation-scholarship-2025",
-    title: "Dallas Foundation Scholarship Program",
-    provider: "The Dallas Foundation",
-    amount: 3000,
-    deadline: "2025-04-01",
-    description: "Supporting Dallas-area students with college expenses.",
+    id: "horatio-alger-scholarship-2025",
+    title: "Horatio Alger National Scholarship",
+    provider: "Horatio Alger Association",
+    amount: 25000,
+    deadline: "2024-10-25",
+    description: "Supporting students who have overcome significant adversity and demonstrate perseverance.",
     requirements: [
-      "Graduate from Dallas County high school",
-      "Minimum 2.5 GPA",
-      "Demonstrated financial need",
-      "Plan to attend accredited college"
+      "High school senior in the United States",
+      "Demonstrated financial need (family income below $55,000)",
+      "Overcome significant adversity",
+      "Minimum 2.0 GPA",
+      "Involved in co-curricular and community activities"
     ],
-    applicationUrl: "https://dallasfoundation.org/scholarships/",
+    applicationUrl: "https://scholars.horatioalger.org/scholarships/",
+    eligibility: {
+      gpaMin: 2.0,
+      gradeLevel: ["12"],
+      income: { max: 55000 },
+      demographics: ["any"]
+    },
+    competitiveness: "high",
+    estimatedApplicants: 10000,
+    tags: ["need-based", "adversity", "national", "resilience"],
+    isLocal: false,
+    isRecurring: true
+  },
+  {
+    id: "jack-kent-cooke-2025",
+    title: "Jack Kent Cooke College Scholarship",
+    provider: "Jack Kent Cooke Foundation",
+    amount: 55000,
+    deadline: "2024-11-17",
+    description: "Nation's largest private scholarship for high-achieving students with financial need.",
+    requirements: [
+      "High school senior with financial need",
+      "Minimum 3.5 GPA",
+      "Standardized test scores in top 15%",
+      "Leadership and service involvement"
+    ],
+    applicationUrl: "https://www.jkcf.org/our-scholarships/college-scholarship/",
+    eligibility: {
+      gpaMin: 3.5,
+      gradeLevel: ["12"],
+      income: { max: 95000 },
+      demographics: ["any"]
+    },
+    competitiveness: "extremely_high",
+    estimatedApplicants: 2500,
+    tags: ["need-based", "merit", "high-achieving"],
+    isLocal: false,
+    isRecurring: true
+  },
+  {
+    id: "amazon-future-engineer-2025",
+    title: "Amazon Future Engineer Scholarship",
+    provider: "Amazon",
+    amount: 10000,
+    deadline: "2025-01-31",
+    description: "Supporting students pursuing computer science degrees, especially underrepresented groups.",
+    requirements: [
+      "High school senior planning to study computer science",
+      "Minimum 3.0 GPA",
+      "Demonstrated financial need",
+      "U.S. citizen or permanent resident"
+    ],
+    applicationUrl: "https://www.amazonfutureengineer.com/scholarships",
+    eligibility: {
+      gpaMin: 3.0,
+      gradeLevel: ["12"],
+      majors: ["Computer Science", "Software Engineering", "Computer Engineering"],
+      demographics: ["any"]
+    },
+    competitiveness: "high",
+    estimatedApplicants: 8000,
+    tags: ["STEM", "technology", "diversity", "computer-science"],
+    isLocal: false,
+    isRecurring: true
+  },
+  {
+    id: "burger-king-scholars-2025",
+    title: "Burger King Scholars Program",
+    provider: "Burger King Foundation",
+    amount: 1000,
+    deadline: "2024-12-15",
+    description: "Supporting employees, employees' children, and graduating seniors in North America.",
+    requirements: [
+      "High school senior in the US, Puerto Rico, or Canada",
+      "Minimum 2.5 GPA",
+      "Work experience or financial hardship",
+      "Community service involvement"
+    ],
+    applicationUrl: "https://www.bkmclamorefoundation.org/",
     eligibility: {
       gpaMin: 2.5,
-      location: ["Dallas County", "Texas"],
-      income: { max: 60000 }
+      gradeLevel: ["12"],
+      demographics: ["any"]
     },
-    competitiveness: "low",
-    estimatedApplicants: 800,
-    tags: ["local", "Texas", "community", "need-based"],
-    isLocal: true,
+    competitiveness: "moderate",
+    estimatedApplicants: 25000,
+    tags: ["work-experience", "community-service", "accessible"],
+    isLocal: false,
+    isRecurring: true
+  },
+  {
+    id: "national-merit-scholarship-2025",
+    title: "National Merit Scholarship",
+    provider: "National Merit Scholarship Corporation",
+    amount: 2500,
+    deadline: "2024-10-15",
+    description: "Merit-based awards for students who excel on the PSAT/NMSQT.",
+    requirements: [
+      "Take PSAT/NMSQT in junior year",
+      "Meet academic and other requirements",
+      "High school senior",
+      "U.S. citizen or permanent resident"
+    ],
+    applicationUrl: "https://www.nationalmerit.org/",
+    eligibility: {
+      gradeLevel: ["12"],
+      demographics: ["any"]
+    },
+    competitiveness: "extremely_high",
+    estimatedApplicants: 16000,
+    tags: ["merit", "PSAT", "academic-excellence"],
+    isLocal: false,
     isRecurring: true
   },
   {

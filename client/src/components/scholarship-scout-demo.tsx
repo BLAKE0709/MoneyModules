@@ -12,6 +12,8 @@ export default function ScholarshipScoutDemo() {
 
   const { data: matches } = useQuery({
     queryKey: ['/api/scholarships/matches'],
+    retry: false,
+    enabled: false  // Disable until profile is complete
   });
 
   if (isLoading) {
@@ -60,7 +62,7 @@ export default function ScholarshipScoutDemo() {
         <Card>
           <CardContent className="p-4 text-center">
             <Users className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-            <div className="text-2xl font-bold">{matches?.length || 0}</div>
+            <div className="text-2xl font-bold">{Array.isArray(matches) ? matches.length : 0}</div>
             <div className="text-sm text-gray-600">Your Matches</div>
           </CardContent>
         </Card>
@@ -102,16 +104,38 @@ export default function ScholarshipScoutDemo() {
                 </div>
 
                 <div className="flex flex-wrap gap-1 mb-3">
-                  {scholarship.requirements?.slice(0, 2).map((req: string, i: number) => (
-                    <Badge key={i} variant="outline" className="text-xs">
-                      {req}
-                    </Badge>
-                  ))}
-                  {scholarship.requirements?.length > 2 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{scholarship.requirements.length - 2} more
-                    </Badge>
-                  )}
+                  {(() => {
+                    try {
+                      const requirements = typeof scholarship.requirements === 'string' 
+                        ? JSON.parse(scholarship.requirements)
+                        : scholarship.requirements;
+                      
+                      if (Array.isArray(requirements)) {
+                        return (
+                          <>
+                            {requirements.slice(0, 2).map((req: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {req}
+                              </Badge>
+                            ))}
+                            {requirements.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{requirements.length - 2} more
+                              </Badge>
+                            )}
+                          </>
+                        );
+                      }
+                    } catch (e) {
+                      // Fall back to displaying as single string
+                    }
+                    
+                    return (
+                      <Badge variant="outline" className="text-xs">
+                        {scholarship.requirements || "General eligibility"}
+                      </Badge>
+                    );
+                  })()}
                 </div>
 
                 <Button className="w-full" size="sm">

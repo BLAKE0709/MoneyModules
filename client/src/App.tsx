@@ -49,34 +49,28 @@ function Router() {
       )}
       
       <Switch>
-        {isLoading || !isAuthenticated ? (
-          <Route path="/" component={Landing} />
-        ) : (
-          <>
-            <Route path="/" component={Home} />
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/essays" component={Essays} />
-            <Route path="/essays/new" component={() => <Essays />} />
-            <Route path="/writing-repository" component={WritingRepository} />
-            <Route path="/agents" component={AgentDashboard} />
-            <Route path="/integrations" component={PlatformIntegrationDashboard} />
-            <Route path="/applications" component={PrePopulatedApplications} />
-            <Route path="/university-integrations" component={UniversityIntegrationDashboard} />
-            <Route path="/ai-portfolio" component={AIUsageDemo} />
-            <Route path="/scholarships" component={ScholarshipScoutDemo} />
-            <Route path="/persona" component={Persona} />
-            <Route path="/admin" component={Admin} />
-            <Route 
-              path="/parent/:studentId" 
-              component={({ params }: any) => (
-                <ParentDashboard 
-                  studentId={params.studentId} 
-                  studentName={(user as any)?.firstName || "Student"}
-                />
-              )} 
+        <Route path="/" component={isLoading || !isAuthenticated ? Landing : Home} />
+        <Route path="/dashboard" component={isAuthenticated ? Dashboard : Landing} />
+        <Route path="/essays" component={isAuthenticated ? Essays : Landing} />
+        <Route path="/essays/new" component={isAuthenticated ? () => <Essays /> : Landing} />
+        <Route path="/writing-repository" component={isAuthenticated ? WritingRepository : Landing} />
+        <Route path="/agents" component={isAuthenticated ? AgentDashboard : Landing} />
+        <Route path="/integrations" component={isAuthenticated ? PlatformIntegrationDashboard : Landing} />
+        <Route path="/applications" component={isAuthenticated ? PrePopulatedApplications : Landing} />
+        <Route path="/university-integrations" component={isAuthenticated ? UniversityIntegrationDashboard : Landing} />
+        <Route path="/ai-portfolio" component={isAuthenticated ? AIUsageDemo : Landing} />
+        <Route path="/scholarships" component={isAuthenticated ? ScholarshipScoutDemo : Landing} />
+        <Route path="/persona" component={isAuthenticated ? Persona : Landing} />
+        <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
+        <Route 
+          path="/parent/:studentId" 
+          component={isAuthenticated ? ({ params }: any) => (
+            <ParentDashboard 
+              studentId={params.studentId} 
+              studentName={(user as any)?.firstName || "Student"}
             />
-          </>
-        )}
+          ) : Landing} 
+        />
         <Route component={NotFound} />
       </Switch>
       

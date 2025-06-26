@@ -278,6 +278,16 @@ export default function Dashboard() {
                 </svg>
                 <span className="font-medium">Pre-Populated Applications</span>
               </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start p-3 h-auto hover:bg-neutral-50"
+                onClick={() => window.location.href = '/university-integrations'}
+              >
+                <svg className="w-5 h-5 text-purple-600 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12,3L1,9L5,11.18V17.18L12,21L19,17.18V11.18L21,10.09V17H23V9L12,3M18.82,9L12,12.72L5.18,9L12,5.28L18.82,9M17,16L12,18.72L7,16V12.27L12,15L17,12.27V16Z"/>
+                </svg>
+                <span className="font-medium">University Integration Hub</span>
+              </Button>
             </div>
           </CardContent>
         </Card>

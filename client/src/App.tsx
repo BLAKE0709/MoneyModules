@@ -18,6 +18,7 @@ import MobileDeadlineAlert from "./components/mobile-deadline-alert";
 import MobileNavigation from "./components/mobile-navigation";
 import ParentDashboard from "./components/parent-dashboard";
 import PrePopulatedApplications from "./components/pre-populated-applications";
+import UniversityIntegrationDashboard from "./components/university-integration-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -57,6 +58,7 @@ function Router() {
             <Route path="/agents" component={AgentDashboard} />
             <Route path="/integrations" component={PlatformIntegrationDashboard} />
             <Route path="/applications" component={PrePopulatedApplications} />
+            <Route path="/university-integrations" component={UniversityIntegrationDashboard} />
             <Route path="/persona" component={Persona} />
             <Route path="/admin" component={Admin} />
             <Route 

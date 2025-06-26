@@ -22,6 +22,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register scholarship application routes
   const { registerScholarshipApplicationRoutes } = await import('./routes/scholarship-applications');
   registerScholarshipApplicationRoutes(app);
+  
+  // Register university integration routes
+  const { registerUniversityIntegrationRoutes } = await import('./routes/university-integrations');
+  registerUniversityIntegrationRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

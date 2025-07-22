@@ -1,0 +1,211 @@
+# Scholarship Scout – Master Agent Orchestrator (MVP Blueprint)
+
+## 1. Vision & MVP Objectives
+
+* Deliver a "Scholarship Scout Brain" that:
+
+  * ingests a student's prior work into a **Persona Vault**
+  * offers **Fidelity‑Aware Essay Coaching** with AI usage tracking
+  * matches scholarships via a **Scholarship Opportunity Scout**
+  * visualises authorship integrity through the **Fidelity Graph + AI Mastery Index**
+* Ship a usable web MVP in **≤ 90 days** that can onboard real students and demonstrate integrity dashboards to parents/counselors.
+
+---
+
+## 2. High‑Level Architecture
+
+```mermaid
+flowchart TD
+  subgraph Frontend
+    A(Student App) -->|GraphQL| B(Orchestrator API)
+    P(Parent Dashboard) -->|GraphQL| B
+    T(Teacher Dashboard) -->|GraphQL| B
+  end
+  subgraph Core Services
+    B --> C(Persona Vault Service)
+    B --> D(Essay Coach Service)
+    B --> E(Fidelity Engine)
+    B --> F(Scholarship Scout Service)
+  end
+  subgraph Data Stores
+    C --> PV[(Postgres + Vector DB)]
+    D --> ED[(Essay Drafts Store)]
+    E --> FL[(Fidelity Logs)]
+    F --> SL[(Scholarship Listings)]
+  end
+```
+
+---
+
+## 3. Component Breakdown & Sprint Tasks
+
+| Sprint | Component                       | Key Deliverables                                                       |
+| ------ | ------------------------------- | ---------------------------------------------------------------------- |
+| 0      | **DevOps & Auth**               | Replit project setup, API skeleton, Supabase auth & Postgres           |
+| 1      | **Persona Vault Ingestion**     | File upload, text extraction, metadata tagging, vector embed storage   |
+| 2      | **Essay Coach (Coaching Mode)** | Prompt → outline → draft, live keystroke capture, simple fidelity log  |
+| 3      | **Fidelity Engine v1**          | Token‑level authorship analysis, Fidelity Score API, dashboard card UI |
+| 4      | **Scholarship Scout v1**        | Basic scraper integration, fit‑ranking algorithm, results table        |
+| 5      | **Parent Dashboard**            | Read‑only effort graph, weekly email summary                           |
+| 6      | **Pilot Launch + Feedback**     | Onboard 5–10 students, gather UX & integrity data                      |
+
+---
+
+## 4. Tech Stack (MVP)
+
+* **Frontend**: React + Tailwind (Vite), shadcn/ui components
+* **API Layer**: Node (tRPC or GraphQL) on Replit deploy
+* **LLM Integration**: OpenAI o3 via server proxy; function calling for essay coach & fidelity classifier
+* **Vector DB**: Supabase pgvector or Pinecone (persona embeddings)
+* **Storage**: Supabase buckets for file uploads; Postgres core tables
+* **Auth**: Supabase Magic Link (student / parent roles)
+
+---
+
+## 5. Data Models (simplified)
+
+```sql
+students(id, name, email, role)
+persona_items(id, student_id, type, source, text, embedding)
+essay_drafts(id, student_id, title, content, fidelity_score, mastery_score)
+keystroke_events(id, draft_id, event_type, token, ts)
+scholarships(id, name, url, deadline, fit_score)
+```
+
+---
+
+## 6. Key API Endpoints
+
+| Method | Path                | Purpose                              |
+| ------ | ------------------- | ------------------------------------ |
+| POST   | /persona/import     | Upload & embed prior work            |
+| POST   | /essay/coach        | Generate outline & draft suggestions |
+| WS     | /essay/live         | Stream keystrokes to Fidelity Engine |
+| GET    | /fidelity/\:draftId | Return Fidelity Graph JSON           |
+| GET    | /scholarships/match | Ranked list for student              |
+
+---
+
+## 7. IP & Patent Checkpoints
+
+1. **Token‑level Fidelity Graph** – authorship lineage algorithm
+2. **AI Mastery Index** – weighted skill & ethics scoring
+3. **Persona‑Aware PromptCraft Coach** – feedback loop tying persona embeddings to prompt quality *Maintain dated notebooks & code commits for provisional filing.*
+
+---
+
+## 8. Revenue Levers (MVP)
+
+* **Student Premium**: \$9.99/mo for unlimited drafts + advanced reports
+* **Parent Upgrade**: \$5/mo dashboard + weekly insights
+* **Counselor Seat**: \$199/yr for full class access & grading tools
+
+---
+
+## 9. Immediate Next Actions
+
+1. **Confirm stack & repo setup (Sprint 0)**
+2. Draft Supabase schema from section 5
+3. Implement Persona Vault file upload endpoint
+4. Begin OpenAI function design for outline generation
+5. Schedule weekly stand‑ups & feedback checkpoints
+
+---
+
+> **🚀 Milestone:** Deployed Persona Vault ingestion + basic Essay Coach by **Day 30** to demo live fidelity tracking.
+
+## 10. Sprint 1 – Persona Vault Ingestion: Detailed Implementation Plan
+
+### 10.1 Goals
+
+* Enable students to securely upload prior work (docs, PDFs, plain text) into the Persona Vault.
+* Extract text, generate embeddings, and store metadata so content becomes searchable and available to the Essay Coach.
+
+### 10.2 Workflow Overview
+
+1. **Upload →** front‑end drag‑and‑drop (max 10 MB/file)
+2. **/persona/import API →** saves file to Supabase storage, returns upload ID
+3. **Background worker →**
+
+   * Detects file type (PDF, DOCX, TXT)
+   * Extracts raw text (pdf‑parse, mammoth, etc.)
+   * Splits into chunks (\~512 tokens)
+   * Calls OpenAI o3 embeddings endpoint
+   * Stores chunks + vectors in `persona_vectors`
+   * Inserts master record in `persona_items`
+4. **Tagging layer →** detects language, word count, Flesch reading score, creation date, and assigns `source_class` (school\_doc, personal\_note, resume, reflection)
+5. **Vault refresh →** front‑end polls `/persona/list` to show new entry with status `processed`.
+
+### 10.3 API Spec
+
+| Method | Path              | Body                               | Description                       |
+| ------ | ----------------- | ---------------------------------- | --------------------------------- |
+| POST   | `/persona/import` | `multipart/form-data {file, type}` | Upload a file or raw text snippet |
+| GET    | `/persona/list`   | `?student_id`                      | Paginated list of vault items     |
+| GET    | `/persona/:id`    |                                    | Fetch full item + chunk metadata  |
+
+### 10.4 DB Schema Additions
+
+```sql
+-- new table for file metadata
+drop table if exists persona_files;
+create table persona_files (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid references students(id),
+  filename text,
+  mimetype text,
+  size int,
+  type text, -- essay, resume, etc.
+  source_class text,
+  word_count int,
+  reading_level numeric,
+  status text default 'processing',
+  created_at timestamptz default now()
+);
+
+-- vector chunks
+create table persona_vectors (
+  id bigserial primary key,
+  persona_file_id uuid references persona_files(id),
+  chunk_index int,
+  text text,
+  embedding vector(1536)
+);
+```
+
+### 10.5 Background Worker
+
+* **Runtime**: Node + BullMQ queue
+* **Concurrency**: 3 workers (Replit instance size limit)
+* **Retries**: 3 with exponential back‑off
+* Logs extraction/embedding durations for cost monitoring.
+
+### 10.6 Acceptance Criteria
+
+1. Uploading a 5‑page PDF (<1 MB) completes processing <15 s.
+2. Embedding count equals chunk count; vectors stored in `persona_vectors`.
+3. Vault list displays title, word count, reading level.
+4. Search API prototype (`/persona/search?q=leadership`) returns relevant chunk in top‑5.
+5. Unit tests: upload, process, query flow passes CI.
+
+### 10.7 Sprint Timeline (7 days)
+
+| Day | Task                                              |
+| --- | ------------------------------------------------- |
+| 1   | Finalize DB migrations, storage bucket rules      |
+| 2   | Implement `/persona/import` endpoint              |
+| 3   | Build background worker (extraction + embeddings) |
+| 4   | Front‑end uploader + progress UI                  |
+| 5   | Implement `/persona/list` and detail modal        |
+| 6   | QA + unit tests                                   |
+| 7   | Sprint demo, gather feedback                      |
+
+### 10.8 Risks & Mitigations
+
+* **Large files** → limit size, add chunk streaming in v1.1
+* **Embedding cost** → cache duplicate chunks, consider local embedding models later
+* **OCR for images** → defer to backlog, flag unsupported formats for manual review
+
+### 10.9 Next Sprint Dependency
+
+> Successful processing unlocks Essay Coach access to persona chunks via vector similarity search.

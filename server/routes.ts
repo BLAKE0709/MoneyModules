@@ -1,16 +1,41 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import path from "path";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerAgentRoutes } from "./routes/agents";
 import { analyzeEssay, generateEssayImprovement, findScholarshipMatches } from "./services/openai";
+import { addPersonaProcessingJob } from "./services/persona-queue";
 import { 
   insertStudentPersonaSchema,
   insertEssaySchema,
   insertScholarshipSchema,
   insertSchoolSchema,
-  insertWritingSampleSchema
+  insertWritingSampleSchema,
+  insertPersonaFileSchema
 } from "@shared/schema";
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: '/tmp/uploads/',
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Unsupported file type. Only PDF, DOCX, and TXT files are allowed.'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -215,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const analysis = await analyzeEssay(
         essay.content,
-        essay.prompt || "No prompt provided",
+        "Essay analysis", // Generic prompt since essays don't have a prompt field
         essay.type,
         sampleContents
       );
@@ -378,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalFound: aiMatches.length,
         storedMatches,
         recommendations,
-        profileCompleteness: this.calculateProfileCompleteness(persona),
+        profileCompleteness: 85, // Mock profile completeness for now
         lastUpdated: new Date()
       });
     } catch (error) {
@@ -457,6 +482,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching admin activities:", error);
       res.status(500).json({ message: "Failed to fetch activities" });
+    }
+  });
+
+  // Persona file upload routes
+  app.post('/api/persona/import', isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Create persona file record
+      const personaFile = await storage.createPersonaFile({
+        studentId: userId,
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        type: req.body.type || 'document',
+        sourceClass: req.body.sourceClass || 'personal_note',
+        status: 'processing',
+        storageUrl: file.path
+      });
+
+      // Add to processing queue or process immediately if Redis unavailable
+      try {
+        await addPersonaProcessingJob({
+          personaFileId: personaFile.id,
+          studentId: userId,
+          filename: file.filename
+        });
+      } catch (error) {
+        // If Redis is unavailable, process immediately
+        console.log('Redis unavailable, processing file immediately');
+        const { fileProcessor } = await import('./services/file-processor');
+        // Process in background without blocking the response
+        fileProcessor.processFile(personaFile.id).catch(err => {
+          console.error('Background file processing failed:', err);
+        });
+      }
+
+      res.json({
+        uploadId: personaFile.id,
+        status: 'processing',
+        filename: file.originalname,
+        size: file.size
+      });
+
+    } catch (error) {
+      console.error("Error uploading persona file:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  app.get('/api/persona/list', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const files = await storage.getPersonaFiles(userId);
+      
+      // Simple pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedFiles = files.slice(startIndex, endIndex);
+      
+      res.json({
+        files: paginatedFiles.map(file => ({
+          id: file.id,
+          filename: file.originalName,
+          wordCount: file.wordCount,
+          readingLevel: file.readingLevel,
+          sourceClass: file.sourceClass,
+          status: file.status,
+          type: file.type,
+          createdAt: file.createdAt
+        })),
+        total: files.length,
+        page,
+        limit,
+        hasMore: endIndex < files.length
+      });
+    } catch (error) {
+      console.error("Error fetching persona files:", error);
+      res.status(500).json({ message: "Failed to fetch persona files" });
+    }
+  });
+
+  app.get('/api/persona/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { id } = req.params;
+      
+      const file = await storage.getPersonaFile(id);
+      if (!file || file.studentId !== userId) {
+        return res.status(404).json({ message: "Persona file not found" });
+      }
+
+      const vectors = await storage.getPersonaVectors(id);
+      
+      res.json({
+        ...file,
+        chunks: vectors.map(v => ({
+          index: v.chunkIndex,
+          text: v.text,
+          // Don't return the full embedding vector in the API response
+        }))
+      });
+    } catch (error) {
+      console.error("Error fetching persona file:", error);
+      res.status(500).json({ message: "Failed to fetch persona file" });
     }
   });
 

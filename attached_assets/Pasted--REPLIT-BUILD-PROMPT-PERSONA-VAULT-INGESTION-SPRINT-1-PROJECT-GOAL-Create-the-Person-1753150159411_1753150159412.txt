@@ -1,0 +1,72 @@
+# 🏗️ REPLIT BUILD PROMPT — PERSONA VAULT INGESTION (SPRINT 1)
+
+## 📌 PROJECT GOAL
+Create the Persona Vault Ingestion layer for Scholarship Scout’s Master Agent MVP.
+
+1. **/persona/import**  
+   • Accepts PDF, DOCX, TXT uploads (≤ 10 MB) via `multipart/form-data`.  
+   • Saves the raw file to Supabase Storage.  
+   • Returns `{ uploadId, status: "processing" }`.
+
+2. **Background Worker**  
+   • Watches Supabase `persona_files.status='processing'`.  
+   • Extracts text with:
+     - `pdf-parse` for PDF
+     - `mammoth` for DOCX
+     - UTF-8 read for TXT  
+   • Splits text into ~512-token chunks.  
+   • Calls **OpenAI o3** embeddings (`text-embedding-model-1536`) for each chunk.  
+   • Stores vectors in `persona_vectors` (pgvector).  
+   • Updates `persona_files.status='processed'`.
+
+3. **/persona/list**  
+   • Returns paginated vault items with `word_count`, `reading_level`, `source_class`, `status`.
+
+4. **/persona/:id**  
+   • Returns full metadata + chunk list for one item.
+
+5. **Acceptance test**: Upload a 5-page PDF (<1 MB) → processing complete < 15 s → `/persona/list` shows it.
+
+---
+
+## 🖥️ STACK REQUIREMENTS
+* **Runtime**: Node 18
+* **API**: Express + tRPC (if quicker, plain Express is fine)
+* **DB**: Supabase Postgres + `pgvector`
+* **Storage**: Supabase Buckets
+* **Queue**: BullMQ + Redis (use Upstash Redis free tier env vars)
+* **Embeddings**: OpenAI o3 (`OPENAI_API_KEY`)
+* **File Parsing**: `pdf-parse`, `mammoth`, `textract` fallback
+* **Env Vars**:  
+  - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_ANON_KEY`  
+  - `OPENAI_API_KEY`  
+  - `REDIS_URL`
+
+---
+
+## 📄 DB SCHEMA (SQL — run via Supabase SQL Editor)
+
+```sql
+create extension if not exists vector;
+
+create table if not exists persona_files (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid references students(id),
+  filename text,
+  mimetype text,
+  size int,
+  type text,          -- essay, resume, etc.
+  source_class text,  -- school_doc, personal_note...
+  word_count int,
+  reading_level numeric,
+  status text default 'processing',
+  created_at timestamptz default now()
+);
+
+create table if not exists persona_vectors (
+  id bigserial primary key,
+  persona_file_id uuid references persona_files(id),
+  chunk_index int,
+  text text,
+  embedding vector(1536)
+);

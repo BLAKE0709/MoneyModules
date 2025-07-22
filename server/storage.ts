@@ -9,6 +9,8 @@ import {
   scholarshipMatches,
   activities,
   writingSamples,
+  personaFiles,
+  personaVectors,
   type User,
   type UpsertUser,
   type School,
@@ -29,6 +31,10 @@ import {
   type InsertActivity,
   type WritingSample,
   type InsertWritingSample,
+  type PersonaFile,
+  type InsertPersonaFile,
+  type PersonaVector,
+  type InsertPersonaVector,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, count, sql } from "drizzle-orm";
@@ -84,6 +90,18 @@ export interface IStorage {
   createWritingSample(sample: InsertWritingSample): Promise<WritingSample>;
   deleteWritingSample(id: string): Promise<void>;
   updateWritingSample(id: string, sample: Partial<InsertWritingSample>): Promise<WritingSample>;
+
+  // Persona files operations
+  getPersonaFiles(studentId: string): Promise<PersonaFile[]>;
+  getPersonaFile(id: string): Promise<PersonaFile | undefined>;
+  createPersonaFile(file: InsertPersonaFile): Promise<PersonaFile>;
+  updatePersonaFile(id: string, file: Partial<InsertPersonaFile>): Promise<PersonaFile>;
+  deletePersonaFile(id: string): Promise<void>;
+
+  // Persona vectors operations
+  getPersonaVectors(personaFileId: string): Promise<PersonaVector[]>;
+  createPersonaVector(vector: InsertPersonaVector): Promise<PersonaVector>;
+  deletePersonaVectors(personaFileId: string): Promise<void>;
 
   // Analytics operations
   getSchoolAnalytics(schoolId: string): Promise<{
@@ -314,6 +332,48 @@ export class DatabaseStorage implements IStorage {
       .where(eq(writingSamples.id, id))
       .returning();
     return updatedSample;
+  }
+
+  // Persona files operations
+  async getPersonaFiles(studentId: string): Promise<PersonaFile[]> {
+    return await db.select().from(personaFiles).where(eq(personaFiles.studentId, studentId)).orderBy(desc(personaFiles.createdAt));
+  }
+
+  async getPersonaFile(id: string): Promise<PersonaFile | undefined> {
+    const [file] = await db.select().from(personaFiles).where(eq(personaFiles.id, id));
+    return file;
+  }
+
+  async createPersonaFile(file: InsertPersonaFile): Promise<PersonaFile> {
+    const [newFile] = await db.insert(personaFiles).values(file).returning();
+    return newFile;
+  }
+
+  async updatePersonaFile(id: string, file: Partial<InsertPersonaFile>): Promise<PersonaFile> {
+    const [updatedFile] = await db
+      .update(personaFiles)
+      .set(file)
+      .where(eq(personaFiles.id, id))
+      .returning();
+    return updatedFile;
+  }
+
+  async deletePersonaFile(id: string): Promise<void> {
+    await db.delete(personaFiles).where(eq(personaFiles.id, id));
+  }
+
+  // Persona vectors operations
+  async getPersonaVectors(personaFileId: string): Promise<PersonaVector[]> {
+    return await db.select().from(personaVectors).where(eq(personaVectors.personaFileId, personaFileId)).orderBy(personaVectors.chunkIndex);
+  }
+
+  async createPersonaVector(vector: InsertPersonaVector): Promise<PersonaVector> {
+    const [newVector] = await db.insert(personaVectors).values(vector).returning();
+    return newVector;
+  }
+
+  async deletePersonaVectors(personaFileId: string): Promise<void> {
+    await db.delete(personaVectors).where(eq(personaVectors.personaFileId, personaFileId));
   }
 
   // Analytics operations

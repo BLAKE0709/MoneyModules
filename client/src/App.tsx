@@ -11,6 +11,7 @@ import Essays from "@/pages/essays";
 import Persona from "@/pages/persona";
 import Admin from "@/pages/admin";
 import WritingRepository from "@/pages/writing-repository";
+import PersonaVault from "@/pages/persona-vault";
 import NotFound from "@/pages/not-found";
 import AgentDashboard from "@/components/agent-dashboard";
 import PlatformIntegrationDashboard from "@/components/platform-integration-dashboard";
@@ -61,6 +62,7 @@ function Router() {
         <Route path="/ai-portfolio" component={isAuthenticated ? AIUsageDemo : Landing} />
         <Route path="/scholarships" component={isAuthenticated ? ScholarshipScoutDemo : Landing} />
         <Route path="/persona" component={isAuthenticated ? Persona : Landing} />
+        <Route path="/persona-vault" component={isAuthenticated ? PersonaVault : Landing} />
         <Route path="/admin" component={isAuthenticated ? Admin : Landing} />
         <Route 
           path="/parent/:studentId" 

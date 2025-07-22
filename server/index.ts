@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { securityHeaders, performanceMonitoring } from "./middleware/security";
+import { securityHeaders } from "./middleware/security";
 import { performanceMonitoring as perfMonitoring } from "./middleware/monitoring";
 
 const app = express();
@@ -48,6 +48,14 @@ app.use((req, res, next) => {
     log('Scholarship database seeded successfully');
   } catch (error) {
     console.error('Failed to seed scholarship database:', error);
+  }
+
+  // Initialize persona processing worker
+  try {
+    const { personaWorker } = await import('./services/persona-queue');
+    log('Persona processing worker initialized');
+  } catch (error) {
+    console.warn('Failed to initialize persona processing worker (Redis may not be available):', error);
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

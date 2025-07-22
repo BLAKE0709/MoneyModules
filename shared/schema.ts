@@ -10,6 +10,7 @@ import {
   decimal,
   boolean,
   uuid,
+  real,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -180,6 +181,32 @@ export const activities = pgTable("activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Persona Vault Files - for ingestion system
+export const personaFiles = pgTable("persona_files", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  filename: text("filename").notNull(),
+  originalName: text("original_name").notNull(),
+  mimetype: text("mimetype").notNull(),
+  size: integer("size").notNull(),
+  type: text("type"), // essay, resume, etc.
+  sourceClass: text("source_class"), // school_doc, personal_note...
+  wordCount: integer("word_count"),
+  readingLevel: real("reading_level"),
+  status: text("status").notNull().default("processing"), // processing, processed, failed
+  storageUrl: text("storage_url"), // URL to file in storage
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Persona Vectors - for semantic search
+export const personaVectors = pgTable("persona_vectors", {
+  id: serial("id").primaryKey(),
+  personaFileId: uuid("persona_file_id").notNull().references(() => personaFiles.id),
+  chunkIndex: integer("chunk_index").notNull(),
+  text: text("text").notNull(),
+  embedding: text("embedding").notNull(), // JSON string of vector array for now
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   persona: one(studentPersonas, {
@@ -259,6 +286,21 @@ export const schoolsRelations = relations(schools, ({ many }) => ({
   users: many(users),
 }));
 
+export const personaFilesRelations = relations(personaFiles, ({ one, many }) => ({
+  student: one(users, {
+    fields: [personaFiles.studentId],
+    references: [users.id],
+  }),
+  vectors: many(personaVectors),
+}));
+
+export const personaVectorsRelations = relations(personaVectors, ({ one }) => ({
+  personaFile: one(personaFiles, {
+    fields: [personaVectors.personaFileId],
+    references: [personaFiles.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -313,6 +355,15 @@ export const insertWritingSampleSchema = createInsertSchema(writingSamples).omit
   uploadedAt: true,
 });
 
+export const insertPersonaFileSchema = createInsertSchema(personaFiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPersonaVectorSchema = createInsertSchema(personaVectors).omit({
+  id: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -334,3 +385,7 @@ export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type WritingSample = typeof writingSamples.$inferSelect;
 export type InsertWritingSample = z.infer<typeof insertWritingSampleSchema>;
+export type PersonaFile = typeof personaFiles.$inferSelect;
+export type InsertPersonaFile = z.infer<typeof insertPersonaFileSchema>;
+export type PersonaVector = typeof personaVectors.$inferSelect;
+export type InsertPersonaVector = z.infer<typeof insertPersonaVectorSchema>;

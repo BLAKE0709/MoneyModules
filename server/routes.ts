@@ -485,6 +485,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Persona Vault API routes
+  app.get('/api/persona/search', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { query, limit = 10 } = req.query;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      
+      const { semanticSearchService } = await import('./services/semantic-search');
+      const results = await semanticSearchService.searchPersonaVectors(userId, query as string, parseInt(limit as string));
+      
+      res.json({
+        query,
+        results,
+        totalFound: results.length
+      });
+    } catch (error) {
+      console.error("Error performing search:", error);
+      res.status(500).json({ message: "Failed to perform search" });
+    }
+  });
+
+  app.get('/api/persona/analysis/writing-style', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { semanticSearchService } = await import('./services/semantic-search');
+      
+      const analysis = await semanticSearchService.analyzeWritingStyle(userId);
+      
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error analyzing writing style:", error);
+      res.status(500).json({ message: "Failed to analyze writing style" });
+    }
+  });
+
   // Persona file upload routes
   app.post('/api/persona/import', isAuthenticated, upload.single('file'), async (req: any, res) => {
     try {

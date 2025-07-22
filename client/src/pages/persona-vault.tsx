@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, Clock, CheckCircle2, AlertCircle, Eye, Trash2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, FileText, Clock, CheckCircle2, AlertCircle, Eye, Trash2, Search, BarChart3, Brain, TrendingUp } from "lucide-react";
 
 interface PersonaFile {
   id: string;
@@ -37,11 +39,25 @@ export default function PersonaVault() {
   const queryClient = useQueryClient();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("files");
 
   // Fetch persona files
   const { data: files, isLoading } = useQuery<PersonaFilesResponse>({
     queryKey: ["/api/persona/list"],
     enabled: !!user,
+  });
+
+  // Fetch writing style analysis
+  const { data: writingAnalysis, isLoading: analysisLoading } = useQuery({
+    queryKey: ["/api/persona/analysis/writing-style"],
+    enabled: !!user,
+  });
+
+  // Search functionality
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ["/api/persona/search", searchQuery],
+    enabled: !!user && searchQuery.length > 2,
   });
 
   // Upload mutation
@@ -150,10 +166,33 @@ export default function PersonaVault() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Persona Vault</h1>
           <p className="text-gray-600 mt-2">
-            Upload your documents to build your AI persona. The system will analyze your writing style and create vector embeddings for semantic search.
+            Upload your documents to build your AI persona. The system analyzes your writing style and creates searchable insights.
           </p>
         </div>
       </div>
+
+      {/* Main Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="files" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Files ({files?.total || 0})
+          </TabsTrigger>
+          <TabsTrigger value="search" className="flex items-center gap-2">
+            <Search className="w-4 h-4" />
+            Search
+          </TabsTrigger>
+          <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            Style Analysis
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" />
+            Insights
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="files" className="space-y-6">
 
       {/* Upload Section */}
       <Card>
@@ -296,6 +335,253 @@ export default function PersonaVault() {
           </CardContent>
         </Card>
       )}
+        
+        </TabsContent>
+
+        {/* Search Tab */}
+        <TabsContent value="search" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                Semantic Search
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="search-query">Search your documents</Label>
+                <Input
+                  id="search-query"
+                  placeholder="Enter keywords or topics to search for..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mt-2"
+                />
+              </div>
+              
+              {searchQuery.length > 2 && (
+                <div className="space-y-4">
+                  {searchLoading ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-2">Searching...</p>
+                    </div>
+                  ) : searchResults?.results?.length > 0 ? (
+                    <div className="space-y-3">
+                      <h3 className="font-medium">Search Results ({searchResults.totalFound})</h3>
+                      {searchResults.results.map((result: any) => (
+                        <div key={result.id} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{result.filename}</h4>
+                            <Badge variant="secondary">{Math.round(result.similarity * 100)}% match</Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {result.wordCount} words • Grade {result.readingLevel} reading level
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : searchQuery.length > 2 ? (
+                    <div className="text-center py-4 text-gray-500">
+                      <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <p>No results found for "{searchQuery}"</p>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Writing Style Analysis Tab */}
+        <TabsContent value="analysis" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                Writing Style Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analysisLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">Analyzing writing style...</p>
+                </div>
+              ) : writingAnalysis ? (
+                <div className="space-y-6">
+                  {/* Core Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{writingAnalysis.totalDocuments}</div>
+                      <div className="text-sm text-gray-500">Documents</div>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{writingAnalysis.totalWords?.toLocaleString()}</div>
+                      <div className="text-sm text-gray-500">Total Words</div>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">{writingAnalysis.averageWordCount}</div>
+                      <div className="text-sm text-gray-500">Avg Words/Doc</div>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-orange-600">{writingAnalysis.averageReadingLevel}</div>
+                      <div className="text-sm text-gray-500">Reading Level</div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Writing Complexity */}
+                  <div>
+                    <h3 className="font-medium mb-3">Vocabulary Complexity</h3>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={
+                        writingAnalysis.vocabularyComplexity === 'graduate_level' ? 'default' :
+                        writingAnalysis.vocabularyComplexity === 'advanced' ? 'secondary' :
+                        writingAnalysis.vocabularyComplexity === 'intermediate' ? 'outline' : 'destructive'
+                      }>
+                        {writingAnalysis.vocabularyComplexity?.replace('_', ' ').toUpperCase()}
+                      </Badge>
+                      <span className="text-sm text-gray-600">
+                        Based on reading level analysis across all documents
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Writing Styles */}
+                  {writingAnalysis.writingStyles?.length > 0 && (
+                    <div>
+                      <h3 className="font-medium mb-3">Detected Writing Styles</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {writingAnalysis.writingStyles.map((style: string, index: number) => (
+                          <Badge key={index} variant="outline">{style}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Theme Analysis */}
+                  {writingAnalysis.themeAnalysis && (
+                    <div>
+                      <h3 className="font-medium mb-3">Theme Analysis</h3>
+                      <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
+                        {writingAnalysis.themeAnalysis}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Strengths and Areas for Improvement */}
+                  {writingAnalysis.strengthsAndWeaknesses && (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {writingAnalysis.strengthsAndWeaknesses.strengths && (
+                        <div>
+                          <h3 className="font-medium mb-3 text-green-600">Strengths</h3>
+                          <ul className="space-y-2">
+                            {writingAnalysis.strengthsAndWeaknesses.strengths.map((strength: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-sm">{strength}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {writingAnalysis.strengthsAndWeaknesses.areas_for_improvement && (
+                        <div>
+                          <h3 className="font-medium mb-3 text-orange-600">Areas for Growth</h3>
+                          <ul className="space-y-2">
+                            {writingAnalysis.strengthsAndWeaknesses.areas_for_improvement.map((area: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <TrendingUp className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-sm">{area}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Brain className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>Upload some documents to see your writing style analysis</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Insights Tab */}
+        <TabsContent value="insights" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Persona Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg">
+                    <h3 className="text-xl font-bold mb-2">AI-Powered Persona Building</h3>
+                    <p className="opacity-90">
+                      Your documents are being processed to create a comprehensive AI persona that understands your writing style, interests, and voice.
+                    </p>
+                  </div>
+                </div>
+
+                {files?.total > 0 && (
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-3xl font-bold text-blue-600">
+                        {files.files?.filter((f: PersonaFile) => f.status === 'processed').length || 0}
+                      </div>
+                      <div className="text-sm text-blue-700 mt-1">Documents Processed</div>
+                      <div className="text-xs text-blue-600 mt-1">
+                        Ready for AI analysis
+                      </div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-3xl font-bold text-green-600">
+                        {files.files?.reduce((sum: number, f: PersonaFile) => sum + (f.wordCount || 0), 0).toLocaleString() || 0}
+                      </div>
+                      <div className="text-sm text-green-700 mt-1">Words Analyzed</div>
+                      <div className="text-xs text-green-600 mt-1">
+                        Building your voice signature
+                      </div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-3xl font-bold text-purple-600">
+                        {Math.round((files.files?.filter((f: PersonaFile) => f.status === 'processed').length / files.total) * 100) || 0}%
+                      </div>
+                      <div className="text-sm text-purple-700 mt-1">Completion</div>
+                      <div className="text-xs text-purple-600 mt-1">
+                        Persona development progress
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                  <h4 className="font-medium text-yellow-800 mb-2">🎯 How This Helps Your Applications</h4>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    <li>• <strong>Essay Enhancement:</strong> AI understands your natural writing style for authentic suggestions</li>
+                    <li>• <strong>Scholarship Matching:</strong> Better matching based on your demonstrated interests and experiences</li>
+                    <li>• <strong>Voice Preservation:</strong> Maintain your unique voice while getting AI assistance</li>
+                    <li>• <strong>Portfolio Building:</strong> Create a comprehensive academic and personal profile</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

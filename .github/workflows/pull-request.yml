@@ -9,7 +9,12 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    uses: BLAKE0709/atlas-pipeline-os/.github/workflows/reusable-commit-lint.yml@main
+    with:
+      working_directory: .
   test:
+    needs: lint
     uses: BLAKE0709/atlas-pipeline-os/.github/workflows/reusable-test.yml@main
     with:
       working_directory: .
